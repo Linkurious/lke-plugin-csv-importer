@@ -19,6 +19,9 @@ class CSVUploader {
     this.showCard();
   }
 
+  /**
+   * Delete session storage and file uploaded to begin to upload
+   */
   cleanState() {
     if (this.fileInput && this.fileInput.files) {
       this.fileInput.value = '';
@@ -30,6 +33,9 @@ class CSVUploader {
     sessionStorage.removeItem('catName');
   }
 
+  /**
+   * Show file name when user added a file
+   */
   public showFile() {
     const files = this.fileInput?.files;
     this.hideError();
@@ -39,16 +45,9 @@ class CSVUploader {
     }
   }
 
-  hideError() {
-    this.fileName.style.display = 'block';
-    this.fileError.style.display = 'none';
-  }
-
-  showError() {
-    this.fileName.style.display = 'none';
-    this.fileError.style.display = 'block'
-  }
-
+  /**
+   * Read and save to session storage the file data
+   */
   public readFile() {
     const params = new URLSearchParams(window.location.search);
     const sourceKey = params.get("sourceKey");
@@ -82,6 +81,22 @@ class CSVUploader {
       fr.readAsText(files[0]);
   }
 
+  /**
+   * Hide eror message
+   */
+  hideError() {
+    this.fileName.style.display = 'block';
+    this.fileError.style.display = 'none';
+  }
+
+  /**
+   * Show error message
+   */
+  showError() {
+    this.fileName.style.display = 'none';
+    this.fileError.style.display = 'block'
+  }
+
   public hideCard() {
     this.container.style.display = 'none';
   }
@@ -103,6 +118,9 @@ class CSVNodeCategory {
     this.hideCard();
   }
 
+  /**
+   * Using data in session storage, show node category name to user
+   */
   setNameCategory() {
     const categoryName = sessionStorage.getItem('catName'); 
     if (categoryName) {
@@ -136,6 +154,9 @@ class CSVNodeProperties {
     this.hideCard();
   }
 
+  /**
+   * Using data in session storage, show properties name that will be added to each node (headers name)
+   */
   setNameProperties() {
     this.utilCSV.removeChildrenOf(this.nodeProperties)
     const headers = sessionStorage.getItem('headers');
@@ -150,6 +171,9 @@ class CSVNodeProperties {
     }
   }
 
+  /**
+   * Add 1 property name to property names container
+   */
   addProperty(name: string) {
     const newProperty = document.createElement('div');
     newProperty.innerText = name;
@@ -158,6 +182,9 @@ class CSVNodeProperties {
     this.nodeProperties.append(newProperty)
   }
 
+  /**
+   * Using data in session storage, import it and return message of success
+   */
   async importNodes(): Promise<string> {
     this.utilCSV.startWaiting();
     try {
@@ -245,6 +272,9 @@ class CSVUtils {
   // @ts-ignore
   private spinner = new Spinner();
 
+  /**
+   * Show spinner on top of page
+   */
   public startWaiting() {
     let overlay = document.createElement("div")
     overlay.className = "overlay";
@@ -253,6 +283,9 @@ class CSVUtils {
     this.spinner.spin(document.getElementsByClassName("highlight")[0]);
   }
 
+  /**
+   * Hide spinner
+   */
   public stopWaiting() {
     let overlay = document.getElementsByClassName("overlay")[0];
     if (overlay && overlay.parentElement) {
@@ -261,10 +294,17 @@ class CSVUtils {
     }
   }
 
+  /**
+   * Go back to linkurious home page
+   */
   goToLinkurious() {
     window.location = window.location.origin as unknown as Location;
   }
 
+  /**
+   * Javascript utility
+   * Remove all children of a given node
+   */
   public removeChildrenOf(node: HTMLElement) {
     while (node.firstChild) {
       node.removeChild(node.lastChild as ChildNode);
@@ -273,10 +313,6 @@ class CSVUtils {
 
   /**
   * make XMLHttpRequest
-  * @param verb : string  default value 'GET'
-  * @param url : string   API end point
-  * @param body : Object
-  * @returns {Promise<any>}
   */
   public makeRequest(verb = 'GET', url: string, body: any): Promise<XMLHttpRequest> {
      const xmlHttp = new XMLHttpRequest();
