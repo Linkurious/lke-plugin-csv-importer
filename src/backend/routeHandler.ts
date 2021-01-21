@@ -28,7 +28,6 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
           }
           let nodesPromise: Promise<any>[] = [];
           req.body.nodes.forEach((node: any) => {
-            console.log(node);
               if(!node || !node.categories || !node.properties) {
                   throw new Error('Node parameters are invalid or missing.');
               }
@@ -38,10 +37,8 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
                   sourceKey: req.query.sourceKey as string
               }));
           });
-          console.log(nodesPromise)
           let totalSuccessful = 0, totalFailed = 0;
           const results = await Promise.all(nodesPromise);
-          console.log(results)
           // TODO:  add way to check if node was actually added
           totalSuccessful = results.length;
           totalFailed = results.length - totalSuccessful;

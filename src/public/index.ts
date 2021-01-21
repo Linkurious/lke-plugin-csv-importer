@@ -115,6 +115,7 @@ class CSVNodeCategory {
   }
 
   showCard() {
+    this.setNameCategory()
     this.container.style.display = 'block';
   }
 }
@@ -158,35 +159,48 @@ class CSVNodeProperties {
   }
 
   async importNodes(): Promise<string> {
-    const rows = sessionStorage.getItem('rows');
-    const headers = sessionStorage.getItem('headers');
-    const categoryName = sessionStorage.getItem('catName');
-    if (rows && headers && categoryName) {
-      const rowsParsed = JSON.parse(rows);
-      const headersParsed = headers.split(",");
-      const nodes = rowsParsed.map((row: any) => {
-        const rowParsed = row.split(',');
-        return {
-          categories: [categoryName],
-          properties: headersParsed.reduce((allProperties, header, index) => {
-            return {
-              ...allProperties,
-              [header]: rowParsed[index]
-            }
-          }, {})
-        }
-      });
-      const resNodes = await this.utilCSV.makeRequest(
-        'POST',
-        `api/addNodes?sourceKey=${sessionStorage.getItem('sourceKey')}`,
-        {
-            nodes: nodes
-        }
-      );
-      const data = JSON.parse(resNodes.response);
-      return `${data.success}/${data.total} nodes have been added to the database`;
+    this.utilCSV.startWaiting();
+    try {
+      const rows = sessionStorage.getItem('rows');
+      const headers = sessionStorage.getItem('headers');
+      const categoryName = sessionStorage.getItem('catName');
+      if (rows && headers && categoryName) {
+        const rowsParsed = JSON.parse(rows);
+        const headersParsed = headers.split(",");
+        const nodes = rowsParsed.map((row: any) => {
+          const rowParsed = row.split(',');
+          return {
+            categories: [categoryName],
+            properties: headersParsed.reduce((allProperties, header, index) => {
+              return {
+                ...allProperties,
+                [header]: rowParsed[index]
+              }
+            }, {})
+          }
+        });
+        const resNodes = await this.utilCSV.makeRequest(
+          'POST',
+          `api/addNodes?sourceKey=${sessionStorage.getItem('sourceKey')}`,
+          {
+              nodes: nodes
+          }
+        );
+        const data = JSON.parse(resNodes.response);
+        return `${data.success}/${data.total} nodes have been added to the database`;
+      }
+      return '';
+    } catch (error) {
+      throw new Error('Import has failed');
+    } finally {
+      this.utilCSV.stopWaiting();
     }
-    return '';
+  }
+
+  async importAndShowFeedback() {
+    const feedback = await this.importNodes();
+    this.hideCard();
+    return feedback;
   }
 
   hideCard() {
@@ -194,6 +208,7 @@ class CSVNodeProperties {
   }
 
   showCard() {
+    this.setNameProperties();
     this.container.style.display = 'block';
   }
 }
@@ -219,7 +234,8 @@ class CSVImportFeedback {
     this.container.style.display = 'none';
   }
 
-  showCard() {
+  showCard(feedback: string) {
+    this.setFeedback(feedback);
     this.container.style.display = 'block';
   }
 }
@@ -292,8 +308,6 @@ class CSVUtils {
 }
 
 function main() {
-  let feedbackNodes = '';
-
   /************** Initialize plugin  ************/
   const csvUtils = new CSVUtils();
 
@@ -309,6 +323,9 @@ function main() {
   const importFeedback = new CSVImportFeedback();
   importFeedback.init();
 
+  /************** Set event handlers ************/
+
+  // cancel button (go to first page and reset state)
   const cancelButtons = document.getElementsByClassName("cancelButton") as HTMLCollectionOf<HTMLElement>;
   for (let i = 0; i < cancelButtons.length; i++) {
     cancelButtons[i].addEventListener('click', () => {
@@ -316,15 +333,12 @@ function main() {
     });
   }
 
-  /************** Set event handlers ************/
-
   // first screen event handler
   const fileInput = document.getElementById("importFile") as HTMLInputElement;
   const readButton = document.getElementById("readButton") as HTMLElement;
   fileInput.addEventListener('change', uploader.showFile.bind(uploader));
   readButton.addEventListener('click', () => {
     uploader.readFile();
-    nodeCategory.setNameCategory();
     nodeCategory.showCard();
   });
 
@@ -337,7 +351,6 @@ function main() {
   });
   nextButtonCat.addEventListener('click', () => {
     nodeCategory.hideCard();
-    nodeProperties.setNameProperties();
     nodeProperties.showCard();
   });
 
@@ -349,10 +362,7 @@ function main() {
      nodeCategory.showCard();
    });
    nextButtonProps.addEventListener('click', async () => {
-     nodeProperties.hideCard();
-     feedbackNodes = await nodeProperties.importNodes();
-     importFeedback.setFeedback(feedbackNodes);
-     importFeedback.showCard();
+     importFeedback.showCard(await nodeProperties.importAndShowFeedback());
    });
 
    // import feedback event handler
