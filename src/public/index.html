@@ -1,0 +1,86 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <title>CSV importer plugin</title>
+    <meta name="description" content="CSV importer Plugin">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/spin.css">
+
+    <base href="/">
+
+    <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+    <div class="header">
+        <div class="title">CSV Import Plugin</div>
+    </div>
+    <div class="cardsContainer">
+        <div class="homeContainer">
+            <div class="content">
+                <div class="titleCard">Choose a file to import</div>
+                <div class=uploadContainer>
+                    <label for="importFile" class="fileUpload">Browse file</label>
+                    <input type="file" id="importFile" name="importFile"><br>
+                    <p id="fileName" class="fileName "> </p>
+                    <div id="fileError"></div>
+                </div>
+            </div>
+            <button id="readButton" class="primaryButton">Upload</button>
+        </div>
+        <div class="nodeCatContainer">
+            <div class="content">
+                <div class="titleCard">Is this the node category?</div>
+                <div id="nameCat" class="largeInfo"></div>
+            </div>
+            <div class="buttonSpaceBetween">
+                <button class="quietButton cancelButton">Cancel</button>
+                <div class="actionGroup">
+                    <button id="previousButtonCat" class="quietButton">Previous</button>
+                    <button id="nextButtonCat" class="primaryButton">That looks good</button>
+                </div>
+            </div>
+        </div>
+        <div class="nodePropsContainer">
+            <div class="content">
+                <div class="titleCard">The following will be mapped as node properties</div>
+                <div id="nameProps"></div>
+            </div>
+            <div class="buttonSpaceBetween">
+                <button class="quietButton cancelButton">Cancel</button>
+                <div class="actionGroup">
+                    <button id="previousButtonProps" class="quietButton">Previous</button>
+                    <button id="nextButtonProps" class="primaryButton">Import</button>
+                </div>
+            </div>
+            
+        </div>
+        <div class="nextstep">
+            <p class="popupTitle">
+                Import successful
+            </p>
+            <div class="importFeedback"></div>
+            <div class="buttonSpaceBetween">
+                <button id="goBackLinkurious" class="quietButton">Go back to Linkurious</button>
+                <div class="actionGroup">
+                    <button id="newFileButton" class="newcsvbutton primaryButton">Upload a new file</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    
+
+
+<!--------------------Script-------------------->
+<script src="assets/js/spin.js"></script>
+<script src="index.js"></script>
+
+</body>
+
+</html>
