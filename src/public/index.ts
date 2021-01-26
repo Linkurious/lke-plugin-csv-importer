@@ -1,19 +1,19 @@
+import { EntitiesTypes } from "./models";
+
 class CSVUploader {
 
-  public container!: HTMLElement;
-  public fileInput!: HTMLInputElement;
-  public fileName!: HTMLElement;
-  public fileError!: HTMLElement;
-  public readButton!: HTMLElement;
+  private container!: HTMLElement;
+  private fileInput!: HTMLInputElement;
+  private fileName!: HTMLElement;
+  private fileError!: HTMLElement;
 
-  public util: CSVUtils = new CSVUtils();
+  private util: CSVUtils = new CSVUtils();
 
   init() {
     this.container = document.getElementsByClassName('homeContainer')[0] as HTMLElement;
     this.fileInput = document.getElementById("importFile") as HTMLInputElement;
     this.fileName = document.getElementById("fileName") as HTMLElement;
     this.fileError = document.getElementById("fileError") as HTMLElement;
-    this.readButton = document.getElementById("readButton") as HTMLElement;
     this.hideError();
     this.cleanState();
     this.showCard();
@@ -22,7 +22,7 @@ class CSVUploader {
   /**
    * Delete session storage and file uploaded to begin to upload
    */
-  cleanState() {
+  private cleanState() {
     if (this.fileInput && this.fileInput.files) {
       this.fileInput.value = '';
     }
@@ -36,7 +36,7 @@ class CSVUploader {
   /**
    * Show file name when user added a file
    */
-  public showFile() {
+  showFile() {
     const files = this.fileInput?.files;
     this.hideError();
     if (files && files.length) {
@@ -48,7 +48,7 @@ class CSVUploader {
   /**
    * Read and save to session storage the file data
    */
-  public readFile() {
+  readFile() {
     const params = new URLSearchParams(window.location.search);
     const sourceKey = params.get("sourceKey");
     if (!sourceKey) {
@@ -97,42 +97,41 @@ class CSVUploader {
     this.fileError.style.display = 'block'
   }
 
-  public hideCard() {
+  hideCard() {
     this.container.style.display = 'none';
   }
 
-  public showCard() {
+  showCard() {
     this.container.style.display = 'block';
   }
 }
 
 class CSVEntityPicker {
-  public container!: HTMLElement;
-  public options!: NodeListOf<HTMLInputElement>;
-  public nextButton!: HTMLButtonElement;
+  private container!: HTMLElement;
+  private options!: NodeListOf<HTMLInputElement>;
+  private nextButton!: HTMLButtonElement;
 
-  private checkedOptions = '';
+  private checkedOptions: EntitiesTypes | null = null;
 
   init() {
     this.container = document.getElementsByClassName('pickEntityContainer')[0] as HTMLElement;
     this.options = document.getElementsByName("entities") as NodeListOf<HTMLInputElement>;
-    this.options[0].addEventListener('change', () => this.updateRadioButton('nodes'));
-    this.options[1].addEventListener('change', () =>  this.updateRadioButton('edges'));
+    this.options[EntitiesTypes.nodes].addEventListener('change', () => this.updateRadioButton(EntitiesTypes.nodes));
+    this.options[EntitiesTypes.edges].addEventListener('change', () =>  this.updateRadioButton(EntitiesTypes.edges));
     this.nextButton = document.getElementById("nextButtonEntity") as HTMLButtonElement;
     this.cleanState();
     this.hideCard();
   }
 
   cleanState() {
-    this.checkedOptions = '';
+    this.checkedOptions = null;
     this.options[0].checked = false;
     this.options[1].checked = false;
     this.nextButton.disabled = true;
   }
 
-  updateRadioButton(value: string) {
-    console.log(value);
-    if (value === 'nodes') {
+  updateRadioButton(value: EntitiesTypes) {
+    if (value === EntitiesTypes.nodes) {
       this.options[0].checked = true;
       this.options[1].checked = false;
     } else {
@@ -153,16 +152,26 @@ class CSVEntityPicker {
   }
 }
 
-class CSVNodeCategory {
-  public container!: HTMLElement;
-  public nodeCategory!: HTMLElement;
-  public nextButton!: HTMLElement;
-  public previousButton!: HTMLElement;
+class CSVEntityName {
+  private container!: HTMLElement;
+  private entityName!: HTMLElement;
+  private titleHolder!: HTMLElement;
+
+  private titleCompleter = [
+    'node category',
+    'edge type'
+  ]
 
   init() {
-    this.container = document.getElementsByClassName('nodeCatContainer')[0] as HTMLElement;
-    this.nodeCategory = document.getElementById('nameCat') as HTMLElement;
+    this.container = document.getElementsByClassName('entityNameContainer')[0] as HTMLElement;
+    this.titleHolder = this.container.getElementsByClassName('titleCard')[0] as HTMLElement;
+    this.entityName = document.getElementById('nameCat') as HTMLElement;
     this.hideCard();
+  }
+
+  setTitle(entityType: EntitiesTypes) {
+    console.log(this.titleHolder)
+    this.titleHolder.innerText = `Is this the ${this.titleCompleter[entityType]}?`;
   }
 
   /**
@@ -171,7 +180,7 @@ class CSVNodeCategory {
   setNameCategory() {
     const categoryName = sessionStorage.getItem('catName'); 
     if (categoryName) {
-      this.nodeCategory.innerText = categoryName;
+      this.entityName.innerText = categoryName;
     }
   }
 
@@ -179,21 +188,22 @@ class CSVNodeCategory {
     this.container.style.display = 'none';
   }
 
-  showCard() {
+  showCard(entityType?: EntitiesTypes) {
+    if (entityType !== undefined) {
+      this.setTitle(entityType);
+    }
     this.setNameCategory()
     this.container.style.display = 'block';
   }
 }
 
 class CSVNodeProperties {
-  public container!: HTMLElement;
-  public nodeProperties!: HTMLElement;
-  public nextButton!: HTMLElement;
-  public previousButton!: HTMLElement;
+  private container!: HTMLElement;
+  private nodeProperties!: HTMLElement;
 
-  public largestPropertyLength = 0;
+  private largestPropertyLength = 0;
 
-  public utilCSV = new CSVUtils();
+  private utilCSV = new CSVUtils();
 
   init() {
     this.container = document.getElementsByClassName('nodePropsContainer')[0] as HTMLElement;
@@ -288,15 +298,12 @@ class CSVNodeProperties {
 }
 
 class CSVImportFeedback {
-  public container!: HTMLElement;
-  public importFeedback!: HTMLElement;
-  public newFileButton!: HTMLElement;
-  public backToLinkuriousButton!: HTMLElement;
+  private container!: HTMLElement;
+  private importFeedback!: HTMLElement;
 
   init() {
     this.container = document.getElementsByClassName('nextstep')[0] as HTMLElement;
     this.importFeedback = document.getElementsByClassName('importFeedback')[0] as HTMLElement;
-    this.newFileButton = document.getElementById('newFileButton') as HTMLElement;
     this.hideCard();
   }
 
@@ -322,7 +329,7 @@ class CSVUtils {
   /**
    * Show spinner on top of page
    */
-  public startWaiting() {
+  startWaiting() {
     let overlay = document.createElement("div")
     overlay.className = "overlay";
     overlay.innerHTML = "<div class=\"opacity\"></div><div class=\"highlight\"></div>"
@@ -333,7 +340,7 @@ class CSVUtils {
   /**
    * Hide spinner
    */
-  public stopWaiting() {
+  stopWaiting() {
     let overlay = document.getElementsByClassName("overlay")[0];
     if (overlay && overlay.parentElement) {
       this.spinner.stop();
@@ -352,7 +359,7 @@ class CSVUtils {
    * Javascript utility
    * Remove all children of a given node
    */
-  public removeChildrenOf(node: HTMLElement) {
+  removeChildrenOf(node: HTMLElement) {
     while (node.firstChild) {
       node.removeChild(node.lastChild as ChildNode);
     }
@@ -361,7 +368,7 @@ class CSVUtils {
   /**
   * make XMLHttpRequest
   */
-  public makeRequest(verb = 'GET', url: string, body: any): Promise<XMLHttpRequest> {
+  makeRequest(verb = 'GET', url: string, body: any): Promise<XMLHttpRequest> {
      const xmlHttp = new XMLHttpRequest();
      return new Promise((resolve, reject) => {
          xmlHttp.onreadystatechange = () => {
@@ -400,8 +407,8 @@ function main() {
   const entityPicker = new CSVEntityPicker();
   entityPicker.init();
 
-  const nodeCategory = new CSVNodeCategory();
-  nodeCategory.init();
+  const entityName = new CSVEntityName();
+  entityName.init();
 
   const nodeProperties = new CSVNodeProperties();
   nodeProperties.init();
@@ -435,22 +442,18 @@ function main() {
     uploader.showCard();
   });
   nextButton.addEventListener('click', () => {
-    const entityPicked = entityPicker.hideCard();
-    if (entityPicked === 'nodes') {
-      nodeCategory.showCard();
-    } else {
-    }
+      entityName.showCard(entityPicker.hideCard()!);
   });
 
   // node category event handler
   const previousButtonCat = document.getElementById("previousButtonCat") as HTMLInputElement;
   const nextButtonCat = document.getElementById("nextButtonCat") as HTMLElement;
   previousButtonCat.addEventListener('click', () => {
-    nodeCategory.hideCard();
+    entityName.hideCard();
     entityPicker.showCard();
   });
   nextButtonCat.addEventListener('click', () => {
-    nodeCategory.hideCard();
+    entityName.hideCard();
     nodeProperties.showCard();
   });
 
@@ -459,7 +462,7 @@ function main() {
    const nextButtonProps = document.getElementById("nextButtonProps") as HTMLElement;
    previousButtonProps.addEventListener('click', () => {
      nodeProperties.hideCard();
-     nodeCategory.showCard();
+     entityName.showCard();
    });
    nextButtonProps.addEventListener('click', async () => {
      importFeedback.showCard(await nodeProperties.importAndShowFeedback());
@@ -482,7 +485,7 @@ function main() {
   function resetPlugin() {
     uploader.init();
     entityPicker.init();
-    nodeCategory.init();
+    entityName.init();
     nodeProperties.init();
     importFeedback.init();
   }
