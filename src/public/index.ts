@@ -106,6 +106,53 @@ class CSVUploader {
   }
 }
 
+class CSVEntityPicker {
+  public container!: HTMLElement;
+  public options!: NodeListOf<HTMLInputElement>;
+  public nextButton!: HTMLButtonElement;
+
+  private checkedOptions = '';
+
+  init() {
+    this.container = document.getElementsByClassName('pickEntityContainer')[0] as HTMLElement;
+    this.options = document.getElementsByName("entities") as NodeListOf<HTMLInputElement>;
+    this.options[0].addEventListener('change', () => this.updateRadioButton('nodes'));
+    this.options[1].addEventListener('change', () =>  this.updateRadioButton('edges'));
+    this.nextButton = document.getElementById("nextButtonEntity") as HTMLButtonElement;
+    this.cleanState();
+    this.hideCard();
+  }
+
+  cleanState() {
+    this.checkedOptions = '';
+    this.options[0].checked = false;
+    this.options[1].checked = false;
+    this.nextButton.disabled = true;
+  }
+
+  updateRadioButton(value: string) {
+    console.log(value);
+    if (value === 'nodes') {
+      this.options[0].checked = true;
+      this.options[1].checked = false;
+    } else {
+      this.options[0].checked = false;
+      this.options[1].checked = true;
+    }
+    this.checkedOptions = value;
+    this.nextButton.disabled = false;
+  }
+
+  hideCard() {
+    this.container.style.display = 'none';
+    return this.checkedOptions;
+  }
+
+  showCard() {
+    this.container.style.display = 'block';
+  }
+}
+
 class CSVNodeCategory {
   public container!: HTMLElement;
   public nodeCategory!: HTMLElement;
@@ -350,6 +397,9 @@ function main() {
   const uploader = new CSVUploader();
   uploader.init();
 
+  const entityPicker = new CSVEntityPicker();
+  entityPicker.init();
+
   const nodeCategory = new CSVNodeCategory();
   nodeCategory.init();
 
@@ -375,7 +425,21 @@ function main() {
   fileInput.addEventListener('change', uploader.showFile.bind(uploader));
   readButton.addEventListener('click', () => {
     uploader.readFile();
-    nodeCategory.showCard();
+    entityPicker.showCard();
+  });
+
+  const previousButtonEntities = document.getElementById("previousButtonEntity") as HTMLInputElement;
+  const nextButton = document.getElementById("nextButtonEntity") as HTMLButtonElement;
+  previousButtonEntities.addEventListener('click', () => {
+    entityPicker.hideCard();
+    uploader.showCard();
+  });
+  nextButton.addEventListener('click', () => {
+    const entityPicked = entityPicker.hideCard();
+    if (entityPicked === 'nodes') {
+      nodeCategory.showCard();
+    } else {
+    }
   });
 
   // node category event handler
@@ -383,7 +447,7 @@ function main() {
   const nextButtonCat = document.getElementById("nextButtonCat") as HTMLElement;
   previousButtonCat.addEventListener('click', () => {
     nodeCategory.hideCard();
-    uploader.showCard();
+    entityPicker.showCard();
   });
   nextButtonCat.addEventListener('click', () => {
     nodeCategory.hideCard();
@@ -417,6 +481,7 @@ function main() {
     */
   function resetPlugin() {
     uploader.init();
+    entityPicker.init();
     nodeCategory.init();
     nodeProperties.init();
     importFeedback.init();

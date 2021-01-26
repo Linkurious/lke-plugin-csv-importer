@@ -22,7 +22,7 @@ a {
 	padding: 0 16px;
 }
 
-.nextstep, .nodePropsContainer, .nodeCatContainer, .homeContainer {
+.nextstep, .nodePropsContainer, .nodeCatContainer, .homeContainer, .pickEntityContainer {
 	border: 1px solid #D9D9D9;
 	padding: 32px 40px;
 	border-radius: 8px;
@@ -45,7 +45,6 @@ a {
 	transition: color 0.2s ease;
 	cursor: pointer;
 	text-align: center;
-	line-height: 28px;
 }
 
 #nameProps {
@@ -62,6 +61,22 @@ a {
 
 .uploadContainer {
 	margin-top: 16px;
+}
+
+.radioButtons {
+	padding-top: 10px;
+	font-size: 1.3rem;
+}
+
+.radioButtons > div {
+	padding-top: 10px;
+	display: flex;
+	align-items: center;
+}
+
+.radioButtons > div > input {
+	color: #378EF0;
+	margin: 3px 8px 3px 5px;
 }
 
 .header {
@@ -111,6 +126,12 @@ button.primaryButton {
 	button.primaryButton:hover {
 		background-color: #2680EB;
 		border: 1px solid #2680EB;
+	}
+
+	button.primaryButton:disabled {
+		background-color:#378EF0;
+		border: 1px solid #378EF0;
+		opacity: .65;
 	}
 
 button.secondaryButton {

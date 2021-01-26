@@ -32,6 +32,28 @@
             </div>
             <button id="readButton" class="primaryButton">Upload</button>
         </div>
+        <div class="pickEntityContainer">
+            <div class="content">
+                <div class="titleCard">Which entity does the file contain?</div>
+                <div class="radioButtons">
+                    <div>
+                        <input type="radio" name="entities" value="nodes">
+                        <label for="nodes">Nodes</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="entities" value="edges">
+                        <label for="edges">Edges</label>
+                    </div>
+                </div>
+            </div>
+            <div class="buttonSpaceBetween">
+                <button class="quietButton cancelButton">Cancel</button>
+                <div class="actionGroup">
+                    <button id="previousButtonEntity" class="quietButton">Previous</button>
+                    <button id="nextButtonEntity" class="primaryButton" disabled>Next</button>
+                </div>
+            </div>
+        </div>
         <div class="nodeCatContainer">
             <div class="content">
                 <div class="titleCard">Is this the node category?</div>
