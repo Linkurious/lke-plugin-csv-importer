@@ -1,7 +1,13 @@
-
-import { CSVUploader, CSVEntityPicker, CSVEntityName, CSVEntityProperties, CSVEdgeMapping, CSVImportFeedback } from './cards';
-import { EntitiesTypes } from './models';
-import * as utils from './utils';
+import {
+  CSVUploader,
+  CSVEntityPicker,
+  CSVEntityName,
+  CSVEntityProperties,
+  CSVEdgeMapping,
+  CSVImportFeedback,
+} from "./cards";
+import { EntitiesTypes } from "./models";
+import * as utils from "./utils";
 
 function main() {
   let entityType: EntitiesTypes;
@@ -26,89 +32,106 @@ function main() {
   const importFeedback = new CSVImportFeedback();
   importFeedback.init();
 
-
   /************** Set event handlers ************/
 
   // cancel button (go to first page and reset state)
-  const cancelButtons = document.getElementsByClassName('cancelButton') as HTMLCollectionOf<HTMLElement>;
+  const cancelButtons = document.getElementsByClassName(
+    "cancelButton"
+  ) as HTMLCollectionOf<HTMLElement>;
   for (let i = 0; i < cancelButtons.length; i++) {
-    cancelButtons[i].addEventListener('click', () => {
+    cancelButtons[i].addEventListener("click", () => {
       resetPlugin();
     });
   }
 
   // first screen event handler
-  const fileInput = document.getElementById('importFile') as HTMLInputElement;
-  const readButton = document.getElementById('readButton') as HTMLElement;
-  fileInput.addEventListener('change', uploader.showFile.bind(uploader));
-  readButton.addEventListener('click', () => {
+  const fileInput = document.getElementById("importFile") as HTMLInputElement;
+  const readButton = document.getElementById("readButton") as HTMLElement;
+  fileInput.addEventListener("change", uploader.showFile.bind(uploader));
+  readButton.addEventListener("click", () => {
     uploader.readFile();
     entityPicker.showCard();
   });
 
   // entity picker event handler
-  const previousButtonEntities = document.getElementById('previousButtonEntity') as HTMLInputElement;
-  const nextButton = document.getElementById('nextButtonEntity') as HTMLButtonElement;
-  previousButtonEntities.addEventListener('click', () => {
+  const previousButtonEntities = document.getElementById(
+    "previousButtonEntity"
+  ) as HTMLInputElement;
+  const nextButton = document.getElementById(
+    "nextButtonEntity"
+  ) as HTMLButtonElement;
+  previousButtonEntities.addEventListener("click", () => {
     entityPicker.hideCard();
     uploader.showCard();
   });
-  nextButton.addEventListener('click', () => {
-      entityType = entityPicker.hideCard()!;
-      entityName.showCard(entityType);
+  nextButton.addEventListener("click", () => {
+    entityType = entityPicker.hideCard()!;
+    entityName.showCard(entityType);
   });
 
   // node category event handler
-  const previousButtonCat = document.getElementById('previousButtonCat') as HTMLInputElement;
-  const nextButtonCat = document.getElementById('nextButtonCat') as HTMLElement;
-  previousButtonCat.addEventListener('click', () => {
+  const previousButtonCat = document.getElementById(
+    "previousButtonCat"
+  ) as HTMLInputElement;
+  const nextButtonCat = document.getElementById("nextButtonCat") as HTMLElement;
+  previousButtonCat.addEventListener("click", () => {
     entityName.hideCard();
     entityPicker.showCard();
   });
-  nextButtonCat.addEventListener('click', () => {
+  nextButtonCat.addEventListener("click", () => {
     entityName.hideCard();
     entityProperties.showCard(entityType);
   });
 
-   // node properties event handler
-   const previousButtonProps = document.getElementById('previousButtonProps') as HTMLInputElement;
-   const nextButtonProps = document.getElementById('nextButtonProps') as HTMLElement;
-   previousButtonProps.addEventListener('click', () => {
-     entityProperties.hideCard();
-     entityName.showCard();
-   });
-   nextButtonProps.addEventListener('click', async () => {
-     const feedback = await entityProperties.nextStep(entityType)
-     entityType === EntitiesTypes.nodes ?
-      importFeedback.showCard(feedback as string) :
-      edgeMapping.showCard()
-   });
+  // node properties event handler
+  const previousButtonProps = document.getElementById(
+    "previousButtonProps"
+  ) as HTMLInputElement;
+  const nextButtonProps = document.getElementById(
+    "nextButtonProps"
+  ) as HTMLElement;
+  previousButtonProps.addEventListener("click", () => {
+    entityProperties.hideCard();
+    entityName.showCard();
+  });
+  nextButtonProps.addEventListener("click", async () => {
+    const feedback = await entityProperties.nextStep(entityType);
+    entityType === EntitiesTypes.nodes
+      ? importFeedback.showCard(feedback as string)
+      : edgeMapping.showCard();
+  });
 
-   // node properties event handler
-   const previousButtonEdge = document.getElementById('previousButtonEdge') as HTMLInputElement;
-   const importButtonEdge = document.getElementById('importButtonEdge') as HTMLElement;
-   previousButtonEdge.addEventListener('click', () => {
-     edgeMapping.hideCard();
-     entityProperties.showCard();
-   });
-   importButtonEdge.addEventListener('click', async () => {
-      importFeedback.showCard(await edgeMapping.importAndFeedback())
-   });
+  // node properties event handler
+  const previousButtonEdge = document.getElementById(
+    "previousButtonEdge"
+  ) as HTMLInputElement;
+  const importButtonEdge = document.getElementById(
+    "importButtonEdge"
+  ) as HTMLElement;
+  previousButtonEdge.addEventListener("click", () => {
+    edgeMapping.hideCard();
+    entityProperties.showCard();
+  });
+  importButtonEdge.addEventListener("click", async () => {
+    importFeedback.showCard(await edgeMapping.importAndFeedback());
+  });
 
-   // import feedback event handler
-   const goBackLinkurious = document.getElementById('goBackLinkurious') as HTMLElement;
-   const newFileButton = document.getElementById('newFileButton') as HTMLElement;
-   goBackLinkurious.addEventListener('click', async () => {
+  // import feedback event handler
+  const goBackLinkurious = document.getElementById(
+    "goBackLinkurious"
+  ) as HTMLElement;
+  const newFileButton = document.getElementById("newFileButton") as HTMLElement;
+  goBackLinkurious.addEventListener("click", async () => {
     utils.goToLinkurious();
   });
-   newFileButton.addEventListener('click', async () => {
-     importFeedback.hideCard();
-     resetPlugin();
-   });
+  newFileButton.addEventListener("click", async () => {
+    importFeedback.hideCard();
+    resetPlugin();
+  });
 
-   /**
-    * Reset all cards to their initial state
-    */
+  /**
+   * Reset all cards to their initial state
+   */
   function resetPlugin() {
     uploader.init();
     entityPicker.init();

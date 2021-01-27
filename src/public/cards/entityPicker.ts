@@ -8,11 +8,21 @@ export class CSVEntityPicker {
   private checkedOptions: EntitiesTypes | null = null;
 
   init() {
-    this.container = document.getElementsByClassName('pickEntityContainer')[0] as HTMLElement;
-    this.options = document.getElementsByName('entities') as NodeListOf<HTMLInputElement>;
-    this.options[EntitiesTypes.nodes].addEventListener('change', () => this.updateRadioButton(EntitiesTypes.nodes));
-    this.options[EntitiesTypes.edges].addEventListener('change', () =>  this.updateRadioButton(EntitiesTypes.edges));
-    this.nextButton = document.getElementById('nextButtonEntity') as HTMLButtonElement;
+    this.container = document.getElementsByClassName(
+      "pickEntityContainer"
+    )[0] as HTMLElement;
+    this.options = document.getElementsByName(
+      "entities"
+    ) as NodeListOf<HTMLInputElement>;
+    this.options[EntitiesTypes.nodes].addEventListener("change", () =>
+      this.updateRadioButton(EntitiesTypes.nodes)
+    );
+    this.options[EntitiesTypes.edges].addEventListener("change", () =>
+      this.updateRadioButton(EntitiesTypes.edges)
+    );
+    this.nextButton = document.getElementById(
+      "nextButtonEntity"
+    ) as HTMLButtonElement;
     this.cleanState();
     this.hideCard();
   }
@@ -37,11 +47,11 @@ export class CSVEntityPicker {
   }
 
   hideCard() {
-    this.container.style.display = 'none';
+    this.container.style.display = "none";
     return this.checkedOptions;
   }
 
   showCard() {
-    this.container.style.display = 'block';
+    this.container.style.display = "block";
   }
 }
