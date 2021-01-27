@@ -1,4 +1,4 @@
-import { EntitiesTypes } from "./models";
+import { CategoriesMapping, EntitiesTypes } from './models';
 
 class CSVUploader {
 
@@ -11,9 +11,9 @@ class CSVUploader {
 
   init() {
     this.container = document.getElementsByClassName('homeContainer')[0] as HTMLElement;
-    this.fileInput = document.getElementById("importFile") as HTMLInputElement;
-    this.fileName = document.getElementById("fileName") as HTMLElement;
-    this.fileError = document.getElementById("fileError") as HTMLElement;
+    this.fileInput = document.getElementById('importFile') as HTMLInputElement;
+    this.fileName = document.getElementById('fileName') as HTMLElement;
+    this.fileError = document.getElementById('fileError') as HTMLElement;
     this.hideError();
     this.cleanState();
     this.showCard();
@@ -30,7 +30,7 @@ class CSVUploader {
     sessionStorage.removeItem('sourceKey');
     sessionStorage.removeItem('rows');
     sessionStorage.removeItem('headers');
-    sessionStorage.removeItem('catName');
+    sessionStorage.removeItem('entityName');
   }
 
   /**
@@ -41,7 +41,7 @@ class CSVUploader {
     this.hideError();
     if (files && files.length) {
       this.fileName.innerText = files[0].name;
-      sessionStorage.setItem("catName", files[0].name.replace('.csv', ''));
+      sessionStorage.setItem('entityName', files[0].name.replace('.csv', ''));
     }
   }
 
@@ -50,17 +50,17 @@ class CSVUploader {
    */
   readFile() {
     const params = new URLSearchParams(window.location.search);
-    const sourceKey = params.get("sourceKey");
+    const sourceKey = params.get('sourceKey');
     if (!sourceKey) {
-      this.fileError.innerHTML = "No source key defined in URL";
+      this.fileError.innerHTML = 'No source key defined in URL';
       this.showError()
       throw Error('No source key defined in URL');
     }
-    sessionStorage.setItem("sourceKey", sourceKey);
+    sessionStorage.setItem('sourceKey', sourceKey);
 
     const files = this.fileInput?.files;
-    if (!files || !files.length || !files[0].name.endsWith(".csv")) {
-        this.fileError.innerHTML = "Select a valid file";
+    if (!files || !files.length || !files[0].name.endsWith('.csv')) {
+        this.fileError.innerHTML = 'Select a valid file';
         this.showError()
         throw Error('Select a valid file')
     }
@@ -73,8 +73,8 @@ class CSVUploader {
           const rows = result.split(/\r?\n|\r/);
           const headers = rows.shift();
           const rowsStringify = JSON.stringify(rows);
-          sessionStorage.setItem("rows", rowsStringify);
-          sessionStorage.setItem("headers", headers || '');
+          sessionStorage.setItem('rows', rowsStringify);
+          sessionStorage.setItem('headers', headers || '');
           this.hideCard();
         }
     };
@@ -115,10 +115,10 @@ class CSVEntityPicker {
 
   init() {
     this.container = document.getElementsByClassName('pickEntityContainer')[0] as HTMLElement;
-    this.options = document.getElementsByName("entities") as NodeListOf<HTMLInputElement>;
+    this.options = document.getElementsByName('entities') as NodeListOf<HTMLInputElement>;
     this.options[EntitiesTypes.nodes].addEventListener('change', () => this.updateRadioButton(EntitiesTypes.nodes));
     this.options[EntitiesTypes.edges].addEventListener('change', () =>  this.updateRadioButton(EntitiesTypes.edges));
-    this.nextButton = document.getElementById("nextButtonEntity") as HTMLButtonElement;
+    this.nextButton = document.getElementById('nextButtonEntity') as HTMLButtonElement;
     this.cleanState();
     this.hideCard();
   }
@@ -170,7 +170,6 @@ class CSVEntityName {
   }
 
   setTitle(entityType: EntitiesTypes) {
-    console.log(this.titleHolder)
     this.titleHolder.innerText = `Is this the ${this.titleCompleter[entityType]}?`;
   }
 
@@ -178,7 +177,7 @@ class CSVEntityName {
    * Using data in session storage, show node category name to user
    */
   setNameCategory() {
-    const categoryName = sessionStorage.getItem('catName'); 
+    const categoryName = sessionStorage.getItem('entityName'); 
     if (categoryName) {
       this.entityName.innerText = categoryName;
     }
@@ -197,35 +196,53 @@ class CSVEntityName {
   }
 }
 
-class CSVNodeProperties {
+class CSVEntityProperties {
   private container!: HTMLElement;
-  private nodeProperties!: HTMLElement;
+  private entityProperties!: HTMLElement;
+  private titleHolder!: HTMLElement;
+  private nextButton!: HTMLButtonElement;
 
   private largestPropertyLength = 0;
 
   private utilCSV = new CSVUtils();
 
+  private titleCompleter = [
+    'node',
+    'edge'
+  ]
+
   init() {
-    this.container = document.getElementsByClassName('nodePropsContainer')[0] as HTMLElement;
-    this.nodeProperties = document.getElementById('nameProps') as HTMLElement;
+    this.container = document.getElementsByClassName('entityPropsContainer')[0] as HTMLElement;
+    this.titleHolder = this.container.getElementsByClassName('titleCard')[0] as HTMLElement;
+    this.entityProperties = document.getElementById('nameProps') as HTMLElement;
+    this.nextButton = document.getElementById('nextButtonProps') as HTMLButtonElement;
     this.hideCard();
+  }
+
+  setTitle(entityType: EntitiesTypes) {
+    this.titleHolder.innerText = `The following will be mapped to ${this.titleCompleter[entityType]} properties`;
   }
 
   /**
    * Using data in session storage, show properties name that will be added to each node (headers name)
    */
-  setNameProperties() {
-    this.utilCSV.removeChildrenOf(this.nodeProperties)
+  setNameProperties(entityType: EntitiesTypes) {
+    this.utilCSV.removeChildrenOf(this.entityProperties)
     const headers = sessionStorage.getItem('headers');
     if (headers) {
-      const headersParsed = headers.split(",");
-      this.largestPropertyLength = headersParsed.reduce((maxLength: number, header: string)  => {
+      const headersParsed = headers.split(',');
+      const headersFinal = entityType === EntitiesTypes.nodes ? headersParsed : headersParsed.slice(2);
+      this.largestPropertyLength = headersFinal.reduce((maxLength: number, header: string)  => {
         return header.length > maxLength ? header.length : maxLength;
       }, 0);
-      headersParsed.forEach((header: string) => {
+      headersFinal.forEach((header: string) => {
         this.addProperty(header);
       })
     }
+  }
+
+  setButtonName(entityType: EntitiesTypes) {
+    this.nextButton.innerText = entityType === EntitiesTypes.nodes ? 'Import' : 'Next';
   }
 
   /**
@@ -236,7 +253,7 @@ class CSVNodeProperties {
     newProperty.innerText = name;
     newProperty.className = 'nodeProperty';
     newProperty.style.width = `${this.largestPropertyLength * 10}px`;
-    this.nodeProperties.append(newProperty)
+    this.entityProperties.append(newProperty)
   }
 
   /**
@@ -247,10 +264,10 @@ class CSVNodeProperties {
     try {
       const rows = sessionStorage.getItem('rows');
       const headers = sessionStorage.getItem('headers');
-      const categoryName = sessionStorage.getItem('catName');
+      const categoryName = sessionStorage.getItem('entityName');
       if (rows && headers && categoryName) {
         const rowsParsed = JSON.parse(rows);
-        const headersParsed = headers.split(",");
+        const headersParsed = headers.split(',');
         const nodes = rowsParsed.map((row: any) => {
           const rowParsed = row.split(',');
           return {
@@ -281,9 +298,140 @@ class CSVNodeProperties {
     }
   }
 
-  async importAndShowFeedback() {
-    const feedback = await this.importNodes();
+  async nextStep(entityType: EntitiesTypes): Promise<string | undefined> {
     this.hideCard();
+    if (entityType === EntitiesTypes.nodes) {
+      const feedback = await this.importNodes();
+      return feedback;
+    }
+    return undefined;
+  }
+
+  hideCard() {
+    this.container.style.display = 'none';
+  }
+
+  showCard(entityType?: EntitiesTypes) {
+    if (entityType !== undefined) {
+      this.setTitle(entityType);
+      this.setNameProperties(entityType);
+      this.setButtonName(entityType)
+    }
+    this.container.style.display = 'block';
+  }
+}
+
+class CSVEdgeMapping {
+  private container!: HTMLElement;
+  private inputs!: HTMLCollectionOf<HTMLInputElement>;
+  private importButton!: HTMLButtonElement;
+
+  private utilCSV = new CSVUtils();
+
+  init() {
+    this.container = document.getElementsByClassName('edgeMappingContainer')[0] as HTMLElement;
+    this.inputs = this.container.getElementsByClassName('mapInput') as HTMLCollectionOf<HTMLInputElement>;
+    this.importButton = this.container.getElementsByClassName('primaryButton')[0] as HTMLButtonElement;
+    this.importButton.disabled = true;
+    this.hideCard();
+
+    this.inputs[0].value = '';
+    this.inputs[1].value = '';
+    this.inputs[0].addEventListener('input', this.onChangeInput.bind(this))
+    this.inputs[1].addEventListener('input', this.onChangeInput.bind(this))
+  }
+
+  onChangeInput() {
+    this.importButton.disabled = !(this.inputs[0].value && this.inputs[1].value)
+  }
+
+  /**
+   * Using data in session storage, import it and return message of success
+   */
+  async importEdges(categoriesMapping: CategoriesMapping): Promise<string> {
+    this.utilCSV.startWaiting();
+    try {
+      const rows = sessionStorage.getItem('rows');
+      const headers = sessionStorage.getItem('headers');
+      const edgeType = sessionStorage.getItem('entityName');
+      if (rows && headers && edgeType) {
+        const rowsParsed = JSON.parse(rows);
+        const headersParsed = headers.split(',');
+        const queryTemplate = this.createEdgeTemplate(categoriesMapping, edgeType, headersParsed);
+        const edges = this.createQueries(queryTemplate, rowsParsed);
+        const resNodes = await this.utilCSV.makeRequest(
+          'POST',
+          `api/addEdges?sourceKey=${sessionStorage.getItem('sourceKey')}`,
+          {
+              edges: edges
+          }
+        );
+        const data = JSON.parse(resNodes.response);
+        return `${data.success}/${data.total} edges have been added to the database`;
+      }
+      return '';
+    } catch (error) {
+      throw new Error('Import has failed');
+    } finally {
+      this.utilCSV.stopWaiting();
+    }
+  }
+
+  /**
+   * From the edge config create query templates
+   */
+  private createEdgeTemplate(categories: CategoriesMapping, edgeType: string, edgeProperties: string[]) {
+    const fromNode = `uid = ~0~ `;
+    let fromQuery = `MATCH (f:${categories.source}) WHERE f.${fromNode}`;
+
+    const toNode = `uid = ~1~ `;
+    let toQuery = `MATCH (t:${categories.destination}) WHERE t.${toNode}`;
+
+    const edgePropertiesQuery = edgeProperties.slice(2)
+      .map((property, index) => {
+        return `SET e.${property} = ~${index + 2}~`;
+      })
+      .join(' ');
+    let edgeQuery = `MERGE (f)-[e:${edgeType}]->(t) ${edgePropertiesQuery} RETURN 1`;
+
+    return fromQuery + toQuery + edgeQuery;
+  }
+
+  /**
+   * Using query templates and data from the csv file, return a list of queries to be ran
+   */
+  private createQueries(queryTemplate: string, csv: string[]) {
+    let res = [];
+    
+    for (let l = 0; l < csv.length; l++) {
+      let qt = queryTemplate;
+      let line = csv[l].split(',');
+      for (let p = 0; p < line.length; p++) {
+        let par = line[p];
+        if (par != '') {
+          if (
+            (par.startsWith('"') && par.endsWith('"')) ||
+            (par.startsWith("'") && par.endsWith("'"))
+          ) {
+            par = par.slice(1, -1);
+          }
+          par = par.replace('"', '\\"');
+          qt = qt.replace(new RegExp('~' + p + '~', 'g'), '"' + par + '"');
+        } else {
+          qt = qt.replace(new RegExp('~' + p + '~', 'g'), 'null');
+        }
+      }
+      res.push(qt);
+    }
+    return res;
+  }
+
+  async importAndFeedback() {
+    const feedback = await this.importEdges({
+      source: this.inputs[0].value,
+      destination: this.inputs[1].value
+    });
+    this.hideCard()
     return feedback;
   }
 
@@ -292,7 +440,6 @@ class CSVNodeProperties {
   }
 
   showCard() {
-    this.setNameProperties();
     this.container.style.display = 'block';
   }
 }
@@ -330,18 +477,18 @@ class CSVUtils {
    * Show spinner on top of page
    */
   startWaiting() {
-    let overlay = document.createElement("div")
-    overlay.className = "overlay";
-    overlay.innerHTML = "<div class=\"opacity\"></div><div class=\"highlight\"></div>"
+    let overlay = document.createElement('div')
+    overlay.className = 'overlay';
+    overlay.innerHTML = '<div class=\"opacity\"></div><div class=\"highlight\"></div>';
     document.body.appendChild(overlay);
-    this.spinner.spin(document.getElementsByClassName("highlight")[0]);
+    this.spinner.spin(document.getElementsByClassName('highlight')[0]);
   }
 
   /**
    * Hide spinner
    */
   stopWaiting() {
-    let overlay = document.getElementsByClassName("overlay")[0];
+    let overlay = document.getElementsByClassName('overlay')[0];
     if (overlay && overlay.parentElement) {
       this.spinner.stop();
       overlay.parentElement.removeChild(overlay);
@@ -398,6 +545,8 @@ class CSVUtils {
 }
 
 function main() {
+  let entityType: EntitiesTypes;
+
   /************** Initialize plugin  ************/
   const csvUtils = new CSVUtils();
 
@@ -410,16 +559,20 @@ function main() {
   const entityName = new CSVEntityName();
   entityName.init();
 
-  const nodeProperties = new CSVNodeProperties();
-  nodeProperties.init();
+  const entityProperties = new CSVEntityProperties();
+  entityProperties.init();
+
+  const edgeMapping = new CSVEdgeMapping();
+  edgeMapping.init();
 
   const importFeedback = new CSVImportFeedback();
   importFeedback.init();
 
+
   /************** Set event handlers ************/
 
   // cancel button (go to first page and reset state)
-  const cancelButtons = document.getElementsByClassName("cancelButton") as HTMLCollectionOf<HTMLElement>;
+  const cancelButtons = document.getElementsByClassName('cancelButton') as HTMLCollectionOf<HTMLElement>;
   for (let i = 0; i < cancelButtons.length; i++) {
     cancelButtons[i].addEventListener('click', () => {
       resetPlugin();
@@ -427,50 +580,66 @@ function main() {
   }
 
   // first screen event handler
-  const fileInput = document.getElementById("importFile") as HTMLInputElement;
-  const readButton = document.getElementById("readButton") as HTMLElement;
+  const fileInput = document.getElementById('importFile') as HTMLInputElement;
+  const readButton = document.getElementById('readButton') as HTMLElement;
   fileInput.addEventListener('change', uploader.showFile.bind(uploader));
   readButton.addEventListener('click', () => {
     uploader.readFile();
     entityPicker.showCard();
   });
 
-  const previousButtonEntities = document.getElementById("previousButtonEntity") as HTMLInputElement;
-  const nextButton = document.getElementById("nextButtonEntity") as HTMLButtonElement;
+  // entity picker event handler
+  const previousButtonEntities = document.getElementById('previousButtonEntity') as HTMLInputElement;
+  const nextButton = document.getElementById('nextButtonEntity') as HTMLButtonElement;
   previousButtonEntities.addEventListener('click', () => {
     entityPicker.hideCard();
     uploader.showCard();
   });
   nextButton.addEventListener('click', () => {
-      entityName.showCard(entityPicker.hideCard()!);
+      entityType = entityPicker.hideCard()!;
+      entityName.showCard(entityType);
   });
 
   // node category event handler
-  const previousButtonCat = document.getElementById("previousButtonCat") as HTMLInputElement;
-  const nextButtonCat = document.getElementById("nextButtonCat") as HTMLElement;
+  const previousButtonCat = document.getElementById('previousButtonCat') as HTMLInputElement;
+  const nextButtonCat = document.getElementById('nextButtonCat') as HTMLElement;
   previousButtonCat.addEventListener('click', () => {
     entityName.hideCard();
     entityPicker.showCard();
   });
   nextButtonCat.addEventListener('click', () => {
     entityName.hideCard();
-    nodeProperties.showCard();
+    entityProperties.showCard(entityType);
   });
 
    // node properties event handler
-   const previousButtonProps = document.getElementById("previousButtonProps") as HTMLInputElement;
-   const nextButtonProps = document.getElementById("nextButtonProps") as HTMLElement;
+   const previousButtonProps = document.getElementById('previousButtonProps') as HTMLInputElement;
+   const nextButtonProps = document.getElementById('nextButtonProps') as HTMLElement;
    previousButtonProps.addEventListener('click', () => {
-     nodeProperties.hideCard();
+     entityProperties.hideCard();
      entityName.showCard();
    });
    nextButtonProps.addEventListener('click', async () => {
-     importFeedback.showCard(await nodeProperties.importAndShowFeedback());
+     const feedback = await entityProperties.nextStep(entityType)
+     entityType === EntitiesTypes.nodes ?
+      importFeedback.showCard(feedback as string) :
+      edgeMapping.showCard()
+   });
+
+   // node properties event handler
+   const previousButtonEdge = document.getElementById('previousButtonEdge') as HTMLInputElement;
+   const importButtonEdge = document.getElementById('importButtonEdge') as HTMLElement;
+   previousButtonEdge.addEventListener('click', () => {
+     edgeMapping.hideCard();
+     entityProperties.showCard();
+   });
+   importButtonEdge.addEventListener('click', async () => {
+      importFeedback.showCard(await edgeMapping.importAndFeedback())
    });
 
    // import feedback event handler
-   const goBackLinkurious = document.getElementById("goBackLinkurious") as HTMLElement;
-   const newFileButton = document.getElementById("newFileButton") as HTMLElement;
+   const goBackLinkurious = document.getElementById('goBackLinkurious') as HTMLElement;
+   const newFileButton = document.getElementById('newFileButton') as HTMLElement;
    goBackLinkurious.addEventListener('click', async () => {
     csvUtils.goToLinkurious();
   });
@@ -486,7 +655,8 @@ function main() {
     uploader.init();
     entityPicker.init();
     entityName.init();
-    nodeProperties.init();
+    entityProperties.init();
+    edgeMapping.init();
     importFeedback.init();
   }
 }

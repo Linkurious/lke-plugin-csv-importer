@@ -67,16 +67,36 @@
                 </div>
             </div>
         </div>
-        <div class="nodePropsContainer">
+        <div class="entityPropsContainer">
             <div class="content">
-                <div class="titleCard">The following will be mapped as node properties</div>
+                <div class="titleCard"></div>
                 <div id="nameProps"></div>
             </div>
             <div class="buttonSpaceBetween">
                 <button class="quietButton cancelButton">Cancel</button>
                 <div class="actionGroup">
                     <button id="previousButtonProps" class="quietButton">Previous</button>
-                    <button id="nextButtonProps" class="primaryButton">Import</button>
+                    <button id="nextButtonProps" class="primaryButton"></button>
+                </div>
+            </div>
+            
+        </div>
+        <div class="edgeMappingContainer">
+            <div class="nodeMapper">
+                <div>
+                    <div class="titleCard">What is the <strong>source node</strong> category?</div>
+                    <input class="mapInput" type="text" placeholder="Source node category">
+                </div>
+                <div>
+                    <div class="titleCard">What is the <strong>destination node</strong> category?</div>
+                    <input class="mapInput" type="text" placeholder="Destination node category">
+                </div>
+            </div>
+            <div class="buttonSpaceBetween">
+                <button class="quietButton cancelButton">Cancel</button>
+                <div class="actionGroup">
+                    <button id="previousButtonEdge" class="quietButton">Previous</button>
+                    <button id="importButtonEdge" class="primaryButton">Import</button>
                 </div>
             </div>
             

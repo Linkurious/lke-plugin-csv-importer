@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser';
-import allSettled from "promise.allsettled";
 
 import {PluginConfig, PluginRouteOptions} from '../@types/plugin';
 
@@ -58,17 +57,19 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
           if(!req.body || !req.body.edges || !Array.isArray(req.body.edges)) {
               throw new Error('Payload is empty.');
           }
-          let edgesPromise: Promise<any>[] = [];
-          req.body.edges.forEach((query: string) => {
-              edgesPromise.push(options.getRestClient(req).graphQuery.runQuery({
-                  query,
-                  sourceKey: req.query.sourceKey as string
-              }));
-          });
-          let totalSuccessful = 0, totalFailed = 0;
-          const results = await allSettled(edgesPromise);
-          totalSuccessful = results.filter((promise: any) => promise.status === 'fulfilled' ).length;
-          totalFailed = results.length - totalSuccessful;
+          let totalSuccessful = 0;
+          for (let index = 0; index < req.body.edges.length; index++) {
+            const query = req.body.edges[index];
+            const res = await options.getRestClient(req).graphQuery.runQuery({
+                query,
+                sourceKey: req.query.sourceKey as string
+            });
+            if (res.status < 400) {
+                totalSuccessful++;
+            }
+          }
+          // TODO:  add way to check if edge was actually added
+          const totalFailed = req.body.edges.length - totalSuccessful;
           res.status(200);
           res.contentType('application/json');
           res.send(JSON.stringify({total: req.body.edges.length, success: totalSuccessful, failed: totalFailed,  message: "Edges are imported."}));
