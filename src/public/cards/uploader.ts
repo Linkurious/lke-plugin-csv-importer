@@ -10,9 +10,9 @@ export class CSVUploader {
   private fileError!: HTMLElement;
 
   init() {
-    this.container = document.getElementsByClassName(
+    this.container = document.getElementById(
       "homeContainer"
-    )[0] as HTMLElement;
+    ) as HTMLElement;
     this.fileInput = document.getElementById("importFile") as HTMLInputElement;
     this.fileName = document.getElementById("fileName") as HTMLElement;
     this.fileError = document.getElementById("fileError") as HTMLElement;
@@ -72,6 +72,8 @@ export class CSVUploader {
       stopWaiting();
       if (event && event.target && event.target.result) {
         const result = event.target.result as string;
+        // this regex identifies all new line characters (independantly of the OS: windows or unix)
+        // then it creates an array of string (each line is an element of the array)
         const rows = result.split(/\r?\n|\r/);
         const headers = rows.shift();
         const rowsStringify = JSON.stringify(rows);

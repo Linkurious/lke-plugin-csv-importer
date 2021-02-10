@@ -1,7 +1,7 @@
 {
   "name": "lke-plugin-csv-importer",
   "version": "0.0.1",
-  "description": "A boilerplate of how to start Linkurious plugin development",
+  "description": "A plugin to quickly import CSV data into LKE",
   "main": "index.js",
   "scripts": {
     "tsc": "tsc -b",

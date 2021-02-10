@@ -1,15 +1,20 @@
 import { CategoriesMapping } from "../models";
 import * as utils from "../utils";
 
+/**
+ * Class that handles all logic related to the edge mapping card
+ * This is the card where the user pick the source and destination categories
+ */
 export class CSVEdgeMapping {
   private container!: HTMLElement;
+  // Source and destination node category inputs
   private inputs!: HTMLCollectionOf<HTMLInputElement>;
   private importButton!: HTMLButtonElement;
 
   init() {
-    this.container = document.getElementsByClassName(
+    this.container = document.getElementById(
       "edgeMappingContainer"
-    )[0] as HTMLElement;
+    ) as HTMLElement;
     this.inputs = this.container.getElementsByClassName(
       "mapInput"
     ) as HTMLCollectionOf<HTMLInputElement>;
@@ -74,7 +79,7 @@ export class CSVEdgeMapping {
     categories: CategoriesMapping,
     edgeType: string,
     edgeProperties: string[]
-  ) {
+  ): string {
     const fromNode = `uid = ~0~ `;
     let fromQuery = `MATCH (f:${categories.source}) WHERE f.${fromNode}`;
 
@@ -95,7 +100,7 @@ export class CSVEdgeMapping {
   /**
    * Using query templates and data from the csv file, return a list of queries to be ran
    */
-  private createQueries(queryTemplate: string, csv: string[]) {
+  private createQueries(queryTemplate: string, csv: string[]): string[] {
     let res = [];
 
     for (let l = 0; l < csv.length; l++) {
@@ -121,7 +126,7 @@ export class CSVEdgeMapping {
     return res;
   }
 
-  async importAndFeedback() {
+  async importAndFeedback(): Promise<string> {
     const feedback = await this.importEdges({
       source: this.inputs[0].value,
       destination: this.inputs[1].value,

@@ -1,5 +1,12 @@
 import { EntitiesTypes } from "../models";
 
+/**
+ * Class that handles all logic of the entity name card
+ * This is the card where the user sees/confirms the:
+ *  - category if a node import
+ *  - type if an egge import
+ *  predefined in the file name
+ */
 export class CSVEntityName {
   private container!: HTMLElement;
   private entityName!: HTMLElement;
@@ -8,9 +15,9 @@ export class CSVEntityName {
   private titleCompleter = ["node category", "edge type"];
 
   init() {
-    this.container = document.getElementsByClassName(
+    this.container = document.getElementById(
       "entityNameContainer"
-    )[0] as HTMLElement;
+    ) as HTMLElement;
     this.titleHolder = this.container.getElementsByClassName(
       "titleCard"
     )[0] as HTMLElement;

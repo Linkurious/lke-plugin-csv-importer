@@ -1,16 +1,20 @@
 import { EntitiesTypes } from "../models";
 
+/**
+ * Class that handles all the logic for the entity picker card
+ * This is the card where the user picks if he wants to import edges or nodes
+ */
 export class CSVEntityPicker {
   private container!: HTMLElement;
   private options!: NodeListOf<HTMLInputElement>;
   private nextButton!: HTMLButtonElement;
 
-  private checkedOptions: EntitiesTypes | null = null;
+  public entityType: EntitiesTypes | null = null;
 
   init() {
-    this.container = document.getElementsByClassName(
+    this.container = document.getElementById(
       "pickEntityContainer"
-    )[0] as HTMLElement;
+    ) as HTMLElement;
     this.options = document.getElementsByName(
       "entities"
     ) as NodeListOf<HTMLInputElement>;
@@ -28,27 +32,21 @@ export class CSVEntityPicker {
   }
 
   cleanState() {
-    this.checkedOptions = null;
-    this.options[0].checked = false;
-    this.options[1].checked = false;
+    this.entityType = null;
+    this.options[EntitiesTypes.nodes].checked = false;
+    this.options[EntitiesTypes.edges].checked = false;
     this.nextButton.disabled = true;
   }
 
   updateRadioButton(value: EntitiesTypes) {
-    if (value === EntitiesTypes.nodes) {
-      this.options[0].checked = true;
-      this.options[1].checked = false;
-    } else {
-      this.options[0].checked = false;
-      this.options[1].checked = true;
-    }
-    this.checkedOptions = value;
+    this.options[EntitiesTypes.nodes].checked = value === EntitiesTypes.nodes;
+    this.options[EntitiesTypes.edges].checked = value === EntitiesTypes.edges;
+    this.entityType = value;
     this.nextButton.disabled = false;
   }
 
   hideCard() {
     this.container.style.display = "none";
-    return this.checkedOptions;
   }
 
   showCard() {

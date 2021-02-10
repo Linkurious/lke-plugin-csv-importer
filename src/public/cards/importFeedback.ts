@@ -1,11 +1,15 @@
+/**
+ * Class that handles all logic for the last card
+ * This is the card providing feedback to the user after importing
+ */
 export class CSVImportFeedback {
   private container!: HTMLElement;
   private importFeedback!: HTMLElement;
 
   init() {
-    this.container = document.getElementsByClassName(
+    this.container = document.getElementById(
       "nextstep"
-    )[0] as HTMLElement;
+    ) as HTMLElement;
     this.importFeedback = document.getElementsByClassName(
       "importFeedback"
     )[0] as HTMLElement;

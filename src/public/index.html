@@ -19,8 +19,8 @@
     <div class="header">
         <div class="title">CSV Import Plugin</div>
     </div>
-    <div class="cardsContainer">
-        <div class="homeContainer">
+    <div id="cardsContainer">
+        <div id="homeContainer">
             <div class="content">
                 <div class="titleCard">Choose a file to import</div>
                 <div class=uploadContainer>
@@ -32,7 +32,7 @@
             </div>
             <button id="readButton" class="primaryButton">Upload</button>
         </div>
-        <div class="pickEntityContainer">
+        <div id="pickEntityContainer">
             <div class="content">
                 <div class="titleCard">Which entity does the file contain?</div>
                 <div class="radioButtons">
@@ -47,33 +47,33 @@
                 </div>
             </div>
             <div class="buttonSpaceBetween">
-                <button class="quietButton cancelButton">Cancel</button>
+                <button class="quietButton resetPluginAction">Cancel</button>
                 <div class="actionGroup">
                     <button id="previousButtonEntity" class="quietButton">Previous</button>
                     <button id="nextButtonEntity" class="primaryButton" disabled>Next</button>
                 </div>
             </div>
         </div>
-        <div class="entityNameContainer">
+        <div id="entityNameContainer">
             <div class="content">
                 <div class="titleCard"></div>
                 <div id="nameCat" class="largeInfo"></div>
             </div>
             <div class="buttonSpaceBetween">
-                <button class="quietButton cancelButton">Cancel</button>
+                <button class="quietButton resetPluginAction">Cancel</button>
                 <div class="actionGroup">
                     <button id="previousButtonCat" class="quietButton">Previous</button>
                     <button id="nextButtonCat" class="primaryButton">That looks good</button>
                 </div>
             </div>
         </div>
-        <div class="entityPropsContainer">
+        <div id="entityPropsContainer">
             <div class="content">
                 <div class="titleCard"></div>
                 <div id="nameProps"></div>
             </div>
             <div class="buttonSpaceBetween">
-                <button class="quietButton cancelButton">Cancel</button>
+                <button class="quietButton resetPluginAction">Cancel</button>
                 <div class="actionGroup">
                     <button id="previousButtonProps" class="quietButton">Previous</button>
                     <button id="nextButtonProps" class="primaryButton"></button>
@@ -81,7 +81,7 @@
             </div>
             
         </div>
-        <div class="edgeMappingContainer">
+        <div id="edgeMappingContainer">
             <div class="nodeMapper">
                 <div>
                     <div class="titleCard">What is the <strong>source node</strong> category?</div>
@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div class="buttonSpaceBetween">
-                <button class="quietButton cancelButton">Cancel</button>
+                <button class="quietButton resetPluginAction">Cancel</button>
                 <div class="actionGroup">
                     <button id="previousButtonEdge" class="quietButton">Previous</button>
                     <button id="importButtonEdge" class="primaryButton">Import</button>
@@ -101,7 +101,7 @@
             </div>
             
         </div>
-        <div class="nextstep">
+        <div id="nextstep">
             <p class="popupTitle">
                 Import successful
             </p>

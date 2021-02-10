@@ -36,11 +36,10 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
                   sourceKey: req.query.sourceKey as string
               }));
           });
-          let totalSuccessful = 0, totalFailed = 0;
           const results = await Promise.all(nodesPromise);
           // TODO:  add way to check if node was actually added
-          totalSuccessful = results.length;
-          totalFailed = results.length - totalSuccessful;
+          const totalSuccessful = results.length;
+          const totalFailed = results.length - totalSuccessful;
 
           res.status(200);
           res.contentType('application/json');
@@ -48,6 +47,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
 
       } catch (e) {
           res.status(412);
+          // TODO: re-work error management for the plugin
           res.send(JSON.stringify(e, Object.getOwnPropertyNames(e)));
       }
   });
@@ -75,7 +75,8 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
           res.send(JSON.stringify({total: req.body.edges.length, success: totalSuccessful, failed: totalFailed,  message: "Edges are imported."}));
       } catch (e) {
           res.status(412);
-          res.send(e.message);
+          // TODO: re-work error management for the plugin
+          res.send(JSON.stringify(e, Object.getOwnPropertyNames(e)));
       }
   });
 };

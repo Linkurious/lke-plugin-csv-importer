@@ -10,7 +10,6 @@ import { EntitiesTypes } from "./models";
 import * as utils from "./utils";
 
 function main() {
-  let entityType: EntitiesTypes;
 
   /************** Initialize plugin  ************/
 
@@ -34,12 +33,13 @@ function main() {
 
   /************** Set event handlers ************/
 
-  // cancel button (go to first page and reset state)
-  const cancelButtons = document.getElementsByClassName(
-    "cancelButton"
+  // cancel button (go to first page and reset state) 
+  // WARNING: all button with this class will trigger a reset if clicked
+  const resetPluginActions = document.getElementsByClassName(
+    "resetPluginAction"
   ) as HTMLCollectionOf<HTMLElement>;
-  for (let i = 0; i < cancelButtons.length; i++) {
-    cancelButtons[i].addEventListener("click", () => {
+  for (let i = 0; i < resetPluginActions.length; i++) {
+    resetPluginActions[i].addEventListener("click", () => {
       resetPlugin();
     });
   }
@@ -65,11 +65,11 @@ function main() {
     uploader.showCard();
   });
   nextButton.addEventListener("click", () => {
-    entityType = entityPicker.hideCard()!;
-    entityName.showCard(entityType);
+    entityPicker.hideCard();
+    entityName.showCard(entityPicker.entityType!);
   });
 
-  // node category event handler
+  // entity type/category  event handler
   const previousButtonCat = document.getElementById(
     "previousButtonCat"
   ) as HTMLInputElement;
@@ -80,10 +80,10 @@ function main() {
   });
   nextButtonCat.addEventListener("click", () => {
     entityName.hideCard();
-    entityProperties.showCard(entityType);
+    entityProperties.showCard(entityPicker.entityType!);
   });
 
-  // node properties event handler
+  // entity properties event handler
   const previousButtonProps = document.getElementById(
     "previousButtonProps"
   ) as HTMLInputElement;
@@ -95,13 +95,13 @@ function main() {
     entityName.showCard();
   });
   nextButtonProps.addEventListener("click", async () => {
-    const feedback = await entityProperties.nextStep(entityType);
-    entityType === EntitiesTypes.nodes
+    const feedback = await entityProperties.nextStep(entityPicker.entityType!);
+    entityPicker.entityType === EntitiesTypes.nodes
       ? importFeedback.showCard(feedback as string)
       : edgeMapping.showCard();
   });
 
-  // node properties event handler
+  // edge mapping event handler
   const previousButtonEdge = document.getElementById(
     "previousButtonEdge"
   ) as HTMLInputElement;

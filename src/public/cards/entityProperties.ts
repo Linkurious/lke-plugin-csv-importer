@@ -1,6 +1,11 @@
 import { EntitiesTypes } from "../models";
 import * as utils from "../utils";
 
+/**
+ * Class that handles all the logic for the entity properties card
+ * This is the card where the user sees/confirms all properties name
+ * that will be imported to the nodes/edges
+ */
 export class CSVEntityProperties {
   private container!: HTMLElement;
   private entityProperties!: HTMLElement;
@@ -12,9 +17,9 @@ export class CSVEntityProperties {
   private titleCompleter = ["node", "edge"];
 
   init() {
-    this.container = document.getElementsByClassName(
+    this.container = document.getElementById(
       "entityPropsContainer"
-    )[0] as HTMLElement;
+    ) as HTMLElement;
     this.titleHolder = this.container.getElementsByClassName(
       "titleCard"
     )[0] as HTMLElement;
@@ -113,11 +118,7 @@ export class CSVEntityProperties {
 
   async nextStep(entityType: EntitiesTypes): Promise<string | undefined> {
     this.hideCard();
-    if (entityType === EntitiesTypes.nodes) {
-      const feedback = await this.importNodes();
-      return feedback;
-    }
-    return undefined;
+    return entityType === EntitiesTypes.nodes ? this.importNodes() : undefined;
   }
 
   hideCard() {
