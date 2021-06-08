@@ -1,6 +1,6 @@
 import {startWaiting, stopWaiting} from "../utils";
 
-const FILE_SIZE_LIMIT = 5 * Math.pow(10, 6);
+const FILE_SIZE_LIMIT = 2 * Math.pow(10, 6);
 
 /**
  * All logic related to the first card (uploading .csv file)
@@ -9,7 +9,9 @@ export class CSVUploader {
   private container!: HTMLElement;
   private fileInput!: HTMLInputElement;
   private fileName!: HTMLElement;
+  private fileSizeLimit!: HTMLElement;
   private fileError!: HTMLElement;
+  private readButton!: HTMLButtonElement;
   private _sourceKey!: string | null;
   private _propertiesValue!: Array<string> | null;
   private _propertiesName!: string | null;
@@ -37,7 +39,9 @@ export class CSVUploader {
       "homeContainer"
     ) as HTMLElement;
     this.fileInput = document.getElementById("importFile") as HTMLInputElement;
+    this.readButton = document.getElementById("readButton") as HTMLButtonElement;
     this.fileName = document.getElementById("fileName") as HTMLElement;
+    this.fileSizeLimit = document.getElementById("fileSize") as HTMLElement;
     this.fileError = document.getElementById("fileError") as HTMLElement;
     this.hideError();
     this.cleanState();
@@ -62,7 +66,20 @@ export class CSVUploader {
     this.hideError();
     if (files && files.length) {
       this.fileName.innerText = files[0].name;
-      this._entityName = files[0].name.replace(".csv", "")
+      this.fileName.style.display = 'block';
+      this._entityName = files[0].name.replace(".csv", "");
+      this.fileSizeLimit.style.display = "none";
+      if (!files[0].name.endsWith(".csv")) {
+        this.fileError.innerHTML = "Select a valid file";
+        this.showError();
+        throw Error("Select a valid file");
+      } else if (files[0].size > FILE_SIZE_LIMIT) {
+        this.fileError.innerHTML = 'File exceeds the 3.5MB limit\n';
+        this.showError();
+        throw Error('File exceeds the 3.5MB limit\n');
+      } else {
+        this.readButton.disabled = false;
+      }
     }
   }
 
@@ -70,48 +87,41 @@ export class CSVUploader {
    * Read and save the csv file
    */
   readFile() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const params = new URLSearchParams(window.location.search);
       this._sourceKey = params.get("sourceKey");
       if (!this._sourceKey) {
         this.fileError.innerHTML = "No source key defined in URL";
         this.showError();
-        throw Error("No source key defined in URL");
+        reject("No source key defined in URL");
       }
 
       const files = this.fileInput?.files;
-      if (!files || !files.length || !files[0].name.endsWith(".csv")) {
-        this.fileError.innerHTML = "Select a valid file";
-        this.showError();
-        throw Error("Select a valid file");
-      } else if (files[0].size > FILE_SIZE_LIMIT) {
-        this.fileError.innerHTML = 'The size of the file is more than the fixed limit 4mb';
-        this.showError();
-        throw Error('The size of the file is more than the fixed limit 4mbvalid file');
+      if (files && files.length) {
+        startWaiting();
+        let fr = new FileReader();
+        fr.onload = (event) => {
+          stopWaiting();
+          if (event && event.target && event.target.result) {
+            const result = event.target.result as string;
+            // this regex identifies all new line characters (independently of the OS: windows or unix)
+            // then it creates an array of string (each line is an element of the array)
+            const rows = result.split(/\r?\n|\r/);
+            const headers = rows.shift();
+            this._propertiesValue = rows;
+            this._propertiesName = headers || "";
+            resolve('done');
+            this.hideCard();
+          }
+        };
+        fr.readAsText(files[0]);
       }
-      startWaiting();
-      let fr = new FileReader();
-      fr.onload = (event) => {
-        stopWaiting();
-        if (event && event.target && event.target.result) {
-          const result = event.target.result as string;
-          // this regex identifies all new line characters (independantly of the OS: windows or unix)
-          // then it creates an array of string (each line is an element of the array)
-          const rows = result.split(/\r?\n|\r/);
-          const headers = rows.shift();
-          this._propertiesValue = rows;
-          this._propertiesName = headers || "";
-          resolve('done');
-          this.hideCard();
-        }
-      };
-      fr.readAsText(files[0]);
     })
 
   }
 
   /**
-   * Hide eror message
+   * Hide error message
    */
   hideError() {
     this.fileName.style.display = "block";
@@ -122,7 +132,7 @@ export class CSVUploader {
    * Show error message
    */
   showError() {
-    this.fileName.style.display = "none";
+    this.fileSizeLimit.style.display = "none";
     this.fileError.style.display = "block";
   }
 
@@ -130,7 +140,11 @@ export class CSVUploader {
     this.container.style.display = "none";
   }
 
-  showCard() {
+  showCard(fromPrevious?: boolean) {
+    if (!fromPrevious) {
+      this.fileName.style.display = 'none';
+    }
     this.container.style.display = "block";
+    this.readButton.disabled = true;
   }
 }

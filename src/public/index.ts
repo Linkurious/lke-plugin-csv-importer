@@ -88,7 +88,7 @@ function main() {
   });
   exitExampleButton.addEventListener("click", () => {
     csvFileStructureExample.hideCard();
-    uploader.showCard();
+    uploader.showCard(true);
   });
 
   // entity picker event handler
@@ -100,7 +100,7 @@ function main() {
   ) as HTMLButtonElement;
   previousButtonEntities.addEventListener("click", () => {
     entityPicker.hideCard();
-    uploader.showCard();
+    uploader.showCard(true);
   });
   nextButton.addEventListener("click", () => {
     entityPicker.hideCard();
