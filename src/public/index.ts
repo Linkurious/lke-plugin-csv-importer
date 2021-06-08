@@ -65,10 +65,6 @@ function main() {
     propertiesValue = uploader.propertiesValue;
     propertiesName = uploader.propertiesName;
     entityName = uploader.entityName;
-    console.log(sourceKey)
-    console.log(propertiesValue)
-    console.log(propertiesName)
-    console.log(entityName)
     entityPicker.showCard();
   });
   showExampleButton.addEventListener("click", () => {
