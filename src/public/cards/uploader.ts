@@ -12,26 +12,7 @@ export class CSVUploader {
   private fileSizeLimit!: HTMLElement;
   private fileError!: HTMLElement;
   private readButton!: HTMLButtonElement;
-  private _sourceKey!: string | null;
-  private _propertiesValue!: Array<string> | null;
-  private _propertiesName!: string | null;
   private _entityName!: string;
-
-  get propertiesValue(): Array<string> | null {
-    return this._propertiesValue
-  }
-
-  get propertiesName(): string | null {
-    return this._propertiesName
-  }
-
-  get entityName(): string {
-    return this._entityName
-  }
-
-  get sourceKey(): string | null {
-    return this._sourceKey
-  }
 
 
   init() {
@@ -86,11 +67,16 @@ export class CSVUploader {
   /**
    * Read and save the csv file
    */
-  readFile() {
+  readFile(): Promise<{
+    sourceKey: string,
+    propertiesValue: Array<string>,
+    propertiesName: string,
+    entityName: string
+  }> {
     return new Promise((resolve, reject) => {
       const params = new URLSearchParams(window.location.search);
-      this._sourceKey = params.get("sourceKey");
-      if (!this._sourceKey) {
+      const sourceKey = params.get("sourceKey");
+      if (!sourceKey) {
         this.fileError.innerHTML = "No source key defined in URL";
         this.showError();
         reject("No source key defined in URL");
@@ -108,9 +94,12 @@ export class CSVUploader {
             // then it creates an array of string (each line is an element of the array)
             const rows = result.split(/\r?\n|\r/);
             const headers = rows.shift();
-            this._propertiesValue = rows;
-            this._propertiesName = headers || "";
-            resolve('done');
+            resolve({
+              sourceKey: sourceKey || "",
+              propertiesValue: rows,
+              propertiesName: headers || "",
+              entityName: this._entityName
+            });
             this.hideCard();
           }
         };

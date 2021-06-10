@@ -60,11 +60,11 @@ function main() {
   const showExampleButton = document.getElementById("showExampleButton") as HTMLElement;
   fileInput.addEventListener("change", uploader.showFile.bind(uploader));
   readButton.addEventListener("click", async () => {
-    await uploader.readFile();
-    sourceKey = uploader.sourceKey;
-    propertiesValue = uploader.propertiesValue;
-    propertiesName = uploader.propertiesName;
-    entityName = uploader.entityName;
+    const fileData = await uploader.readFile();
+    sourceKey = fileData.sourceKey;
+    propertiesValue = fileData.propertiesValue;
+    propertiesName = fileData.propertiesName;
+    entityName = fileData.entityName;
     entityPicker.showCard();
   });
   showExampleButton.addEventListener("click", () => {
