@@ -61,10 +61,7 @@ function main() {
   fileInput.addEventListener("change", uploader.showFile.bind(uploader));
   readButton.addEventListener("click", async () => {
     const fileData = await uploader.readFile();
-    sourceKey = fileData.sourceKey;
-    propertiesValue = fileData.propertiesValue;
-    propertiesName = fileData.propertiesName;
-    entityName = fileData.entityName;
+    ({sourceKey, propertiesValue, propertiesName, entityName} = fileData);
     entityPicker.showCard();
   });
   showExampleButton.addEventListener("click", () => {
