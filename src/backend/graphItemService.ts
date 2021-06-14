@@ -1,4 +1,3 @@
-
 import {RestClient} from '@linkurious/rest-client';
 import {GroupedErrors, parseCSV, RowErrorMessage} from './utils';
 import {ImportEdgesParams, ImportItemsResponse, ImportNodesParams} from '../@types/shared';
@@ -49,6 +48,12 @@ export class GraphItemService {
         console.log({e});
         errors.add(e.message, i);
       }
+    }
+
+    if (errors.total === 0) {
+      return {
+        success: i
+      };
     }
 
     return {
