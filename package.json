@@ -20,7 +20,6 @@
     "copy-assets": "cp -R src/public/assets csv-importer.lke/public && cp src/public/index.html csv-importer.lke/public",
     "installProduction": "cp package.json csv-importer.lke",
     "copyManifest": "cp -R src/manifest.json csv-importer.lke/",
-    "copyPackage": "cp lke-plugin-csv-importer.lke ../",
     "lint:ci-deactivated": "eslint -f checkstyle -o reports/checkstyle.xml  .",
     "build:project": "npm-run-all build:public build:backend copyManifest",
     "build:public": "tsc -b src/public && npm run copy-assets && cd src/public/dist && browserify *.js --debug -o ../../../csv-importer.lke/public/index.js",
