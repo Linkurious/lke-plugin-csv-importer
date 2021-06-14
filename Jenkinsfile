@@ -2,7 +2,7 @@
 
 nodeJob {
   // General
-  projectName = "@lonkurious/lke-plugin-csv-importer"
+  projectName = "linkurious/lke-plugin-csv-importer"
   runUnitTests = false
   runE2eTests = false
 
@@ -10,7 +10,7 @@ nodeJob {
 
   //static asset upload
   runPrivateNpmPublish = false
-  binaries = ["@lonkurious/lke-plugin-csv-importer.lke"]
+  binaries = ["lke-plugin-csv-importer.lke"]
   groupId = 'com.linkurious.plugins'
 
 }
