@@ -13,7 +13,7 @@
     "build:project": "npm-run-all build:public build:backend copyManifest",
     "build:public": "tsc -b src/public && npm run copy-assets && cd src/public/dist && browserify *.js --debug -o ../../../csv-importer.lke/public/index.js",
     "build:backend": "tsc -b src/backend && npm run installProduction",
-    "build": "npm run build:project && npm pack && gunzip -qf -c lke-plugin-csv-importer-$(cat .version).tgz > lke-plugin-csv-importer.lke",
+    "build": "npm run build:project && npm pack && gunzip -qf -c linkurious-lke-plugin-csv-importer-$(cat .version).tgz > lke-plugin-csv-importer.lke",
     "plugin:tar": "scripts/postpack.js",
     "bump:patch": "bump2version patch && npm version --no-git-tag-version patch",
     "bump:minor": "bump2version minor && npm version --no-git-tag-version minor",
