@@ -1,5 +1,5 @@
 {
-  "name": "@lonkurious/lke-plugin-csv-importer",
+  "name": "@linkurious/lke-plugin-csv-importer",
   "version": "0.0.1",
   "description": "A plugin to quickly import CSV data into LKE",
   "main": "public/index.js",
