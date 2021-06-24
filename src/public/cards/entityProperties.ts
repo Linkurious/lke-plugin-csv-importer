@@ -12,6 +12,7 @@ export class CSVEntityProperties {
   private entityProperties!: HTMLElement;
   private titleHolder!: HTMLElement;
   private nextButton!: HTMLButtonElement;
+  private entityType!: EntitiesTypes;
 
   private largestPropertyLength = 0;
 
@@ -98,13 +99,15 @@ export class CSVEntityProperties {
     }
   }
 
-  async nextStep(
+  nextStep(
     csv: string,
     entityName?: string,
     sourceKey?: string
-  ): Promise<ImportItemsResponse> {
+  ): Promise<ImportItemsResponse> | void {
+    if (this.entityType === EntitiesTypes.nodes) {
+      return this.importNodes(csv, entityName, sourceKey);
+    }
     this.hideCard();
-    return this.importNodes(csv, entityName, sourceKey);
   }
 
   hideCard() {
@@ -116,6 +119,7 @@ export class CSVEntityProperties {
     propertiesName?: string,
   ) {
     if (entityType !== undefined) {
+      this.entityType = entityType;
       this.setTitle(entityType);
       this.setNameProperties(entityType, propertiesName);
       this.setButtonName(entityType);
