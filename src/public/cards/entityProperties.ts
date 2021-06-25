@@ -12,7 +12,7 @@ export class CSVEntityProperties {
   private entityProperties!: HTMLElement;
   private titleHolder!: HTMLElement;
   private nextButton!: HTMLButtonElement;
-
+  private entityType!: EntitiesTypes;
   private titleCompleter = ["node", "edge"];
 
   init() {
@@ -108,9 +108,11 @@ export class CSVEntityProperties {
     csv: string,
     entityName?: string,
     sourceKey?: string
-  ): Promise<ImportItemsResponse> {
+  ): Promise<ImportItemsResponse> | void {
     this.hideCard();
-    return this.importNodes(csv, entityName, sourceKey);
+    if (this.entityType === EntitiesTypes.nodes) {
+      return this.importNodes(csv, entityName, sourceKey);
+    }
   }
 
   hideCard() {
@@ -122,6 +124,7 @@ export class CSVEntityProperties {
     propertiesName?: string,
   ) {
     if (entityType !== undefined) {
+      this.entityType = entityType;
       this.setTitle(entityType);
       this.setNameProperties(entityType, propertiesName);
       this.setButtonName(entityType);
