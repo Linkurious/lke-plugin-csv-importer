@@ -12,7 +12,6 @@ export class CSVEntityProperties {
   private entityProperties!: HTMLElement;
   private titleHolder!: HTMLElement;
   private nextButton!: HTMLButtonElement;
-  private entityType!: EntitiesTypes;
 
   private titleCompleter = ["node", "edge"];
 
@@ -123,7 +122,6 @@ export class CSVEntityProperties {
     propertiesName?: string,
   ) {
     if (entityType !== undefined) {
-      this.entityType = entityType;
       this.setTitle(entityType);
       this.setNameProperties(entityType, propertiesName);
       this.setButtonName(entityType);
