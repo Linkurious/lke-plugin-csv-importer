@@ -14,8 +14,6 @@ export class CSVEntityProperties {
   private nextButton!: HTMLButtonElement;
   private entityType!: EntitiesTypes;
 
-  private largestPropertyLength = 0;
-
   private titleCompleter = ["node", "edge"];
 
   init() {
@@ -47,12 +45,6 @@ export class CSVEntityProperties {
         entityType === EntitiesTypes.nodes
           ? headersParsed
           : headersParsed.slice(2);
-      this.largestPropertyLength = headersFinal.reduce(
-        (maxLength: number, header: string) => {
-          return header.length > maxLength ? header.length : maxLength;
-        },
-        0
-      );
       headersFinal.forEach((header: string) => {
         this.addProperty(header);
       });
@@ -71,7 +63,6 @@ export class CSVEntityProperties {
     const newProperty = document.createElement("div");
     newProperty.innerText = name;
     newProperty.className = "nodeProperty";
-    newProperty.style.width = `${this.largestPropertyLength * 10}px`;
     this.entityProperties.append(newProperty);
   }
 

@@ -99,6 +99,8 @@ a {
   transition: color 0.2s ease;
   cursor: pointer;
   text-align: center;
+  padding: 12px 0;
+  margin-right: 16px;
 }
 
 #nameProps {
@@ -111,6 +113,10 @@ a {
   border: 1px solid #D9D9D9;
   border-radius: 8px;
   font-size: 1.3rem;
+  width: 50%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .uploadContainer {
