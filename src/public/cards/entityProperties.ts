@@ -109,11 +109,9 @@ export class CSVEntityProperties {
     csv: string,
     entityName?: string,
     sourceKey?: string
-  ): Promise<ImportItemsResponse> | void {
+  ): Promise<ImportItemsResponse> {
     this.hideCard();
-    if (this.entityType === EntitiesTypes.nodes) {
-      return this.importNodes(csv, entityName, sourceKey);
-    }
+    return this.importNodes(csv, entityName, sourceKey);
   }
 
   hideCard() {
