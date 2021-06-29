@@ -12,7 +12,6 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
   options.router.post(
     '/importNodes',
     respond((req: Request) => {
-      req.setTimeout(600000)
       const rc = options.getRestClient(req);
       const params = GraphItemParams.checkImportNodes(req);
       graphItemService.importGraphItems(params, rc, false);
@@ -22,8 +21,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
 
   options.router.post(
     '/importStatus',
-    respond((req: Request) => {
-      req.setTimeout(600000)
+    respond(() => {
       return Promise.resolve(graphItemService.importResult);
     })
   );
@@ -31,7 +29,6 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
   options.router.post(
     '/importEdges',
     respond((req: Request) => {
-      req.setTimeout(600000)
       const rc = options.getRestClient(req);
       const params = GraphItemParams.checkImportEdges(req);
       graphItemService.importGraphItems(params, rc, false);
