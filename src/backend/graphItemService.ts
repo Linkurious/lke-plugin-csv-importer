@@ -4,7 +4,7 @@ import {ImportEdgesParams, ImportItemsResponse, ImportNodesParams} from '../@typ
 
 export class GraphItemService {
 
-  public importResult!: ImportItemsResponse;
+  public importResult: ImportItemsResponse | undefined;
 
   public async importGraphItems(
     params: ImportNodesParams | ImportEdgesParams,
