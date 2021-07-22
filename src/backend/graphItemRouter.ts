@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 
 import {PluginConfig, PluginRouteOptions} from '../@types/plugin';
 import {GraphItemParams} from './graphItemParams';
-import {respond} from './utils';
+import {respond, log} from './utils';
 import {Request} from 'express';
 import {GraphItemService} from './graphItemService';
 
@@ -19,7 +19,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
       const params = GraphItemParams.checkImportNodes(req);
 
       // We don't wait for the import to finish, we don't return this promise on purpose
-      graphItemService.importItems(rc, params).catch(console.log);
+      graphItemService.importItems(rc, params).catch(log);
 
       return;
     })
@@ -35,7 +35,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
       const params = GraphItemParams.checkImportEdges(req);
 
       // We don't wait for the import to finish, we don't return this promise on purpose
-      graphItemService.importItems(rc, params).catch(console.log);
+      graphItemService.importItems(rc, params).catch(log);
 
       return;
     })

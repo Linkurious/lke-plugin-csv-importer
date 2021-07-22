@@ -1,11 +1,12 @@
-import {Request, Response} from 'express';
-import {LkErrorKey} from '@linkurious/rest-client';
+import {Request, Response as _Response} from 'express';
+import {LkErrorKey, Response} from '@linkurious/rest-client';
 
 export function log(...messages: unknown[]): void {
   console.log(
-    `${new Date().toISOString()} ${messages
-      .map((message) => JSON.stringify(message, null, 2))
-      .join(' ')}`
+    new Date().toISOString(),
+    ...messages.map((message) =>
+      message instanceof Error || message instanceof Response ? message : JSON.stringify(message)
+    )
   );
 }
 
@@ -89,7 +90,7 @@ export class GroupedErrors extends Map<RowErrorMessage, number[]> {
 }
 
 export function respond(asyncHandler: (req: Request) => Promise<{[k: string]: unknown} | void>) {
-  return async (req: Request, res: Response): Promise<void> => {
+  return async (req: Request, res: _Response): Promise<void> => {
     try {
       const body = await asyncHandler(req);
       if (body === undefined) {

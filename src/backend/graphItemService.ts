@@ -157,7 +157,7 @@ export class GraphItemService {
           GraphItemService.cacheGraphNodeIDs(params.itemType, response, batch.UIDs);
         }
       } catch (e) {
-        log('Batch has failed', e.body?.message);
+        log('Batch has failed', e);
         errors.add(e, batch.indices);
       }
       this.updateProgress(i, total, errors);
