@@ -1,5 +1,5 @@
 {
-  "name": "CSV importer",
+  "name": "csv-importer",
   "version": "1.0.1",
   "pluginApiVersion": "1.0.0",
   "publicRoute": "public",
