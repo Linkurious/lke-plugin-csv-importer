@@ -15,7 +15,9 @@ export enum RowErrorMessage {
   SOURCE_TARGET_NOT_FOUND = 'Source or target node not found',
   DATA_SOURCE_UNAVAILABLE = 'Data-source is not available',
   UNAUTHORIZED = 'You are not logged in',
-  UNEXPECTED = 'Unexpected error, check the logs'
+  UNEXPECTED = 'Unexpected error, check the logs',
+  EMPTY_LINE = 'Unexpected Empty line in the CSV file',
+  MISSING_CLOSING_QUOTE = 'One of the values is missing a closing quote',
 }
 
 export class GroupedErrors extends Map<RowErrorMessage, number[]> {

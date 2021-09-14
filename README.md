@@ -86,29 +86,22 @@ After the import, you will get one of the following results:
 
 1. **Successful**: All nodes / edges have been imported
 
-2. **Failed**: Nothing has been imported
+2. **Failed**: Nothing has been imported  
+   **a. Too many or missing header values**:
+     Your header has 3 property names, but some rows have less than 3 or more than 3 comma-separated values
 
 3. **Incomplete**: Some nodes/edges failed to be imported due to one of the following reasons:
 
-   **a. Schema non-compliant data**:
-      The schema type has phone as number, but in the csv the value of phone is a string. Same for date or booleans or other incompatible types
-
-   **b. Unexpected properties (in strict schema)**:
-      If the schema type has name and phone, but in your csv you have the headers name, phone, email, then it will fail for email
-
-   **c. Missing required properties**:
-      If the schema type has phone as required, but your csv has only name
-
-   **d. Too many or missing header values**:
+   **a. Too many or missing header values**:
       Your header has 3 property names, but some rows have less than 3 or more than 3 comma-separated values
 
-   **e. Source or target node does not exist**
+   **b. Source or target node does not exist**
 
-   **f. Data-source is not available (including read-only)**
+   **c. Data-source is not available (including read-only)**
 
-   **g. Unauthorized access to the data-source**
+   **d. Unauthorized access to the data-source**
 
-   **h. Error unknown**:
+   **e. Error unknown**:
       Default message if error is not known
 
 ## Limitations

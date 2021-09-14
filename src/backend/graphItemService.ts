@@ -1,6 +1,12 @@
 import {RestClient, RunQueryResponse} from '@linkurious/rest-client';
 import {GroupedErrors, log, RowErrorMessage} from './utils';
 import {ImportEdgesParams, ImportItemsResponse, ImportNodesParams} from '../@types/shared';
+import parse from 'csv-parse/lib/sync';
+
+interface ParsedCSV {
+  headers: string[];
+  records: (string | number) [][];
+}
 
 export class GraphItemService {
   // Cache from category + UID to graph ID
@@ -129,13 +135,20 @@ export class GraphItemService {
     let batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[];
     let badRows: [RowErrorMessage, number[]][];
 
+    const parsedCSV = GraphItemService.parseCSV(params.csv);
+
+    if (typeof parsedCSV === 'string')
+    {
+      this.endProgress(0, new GroupedErrors());
+    }
+
     // 1. Batch items
     if (isEdge) {
       ({total, headers, batchedRows, badRows} = GraphItemService.createEdgeBatches(
         params as ImportEdgesParams
       ));
     } else {
-      ({total, headers, batchedRows, badRows} = GraphItemService.createNodeBatches(params.csv));
+      ({total, headers, batchedRows, badRows} = GraphItemService.createNodeBatches(parsedCSV));
     }
 
     // 2. Keep track of the errors
@@ -192,52 +205,47 @@ export class GraphItemService {
    * TODO take care of escaping commas, line-breaks, etc...
    * EOL is \n on POSIX and \r\n on Windows
    */
-  public static createNodeBatches(csv: string): {
+  public static createNodeBatches(csv: string | number [][]): {
     total: number;
     headers: string[];
-    batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[];
+    batchedRows: { indices: number[]; rows: unknown[][]; UIDs: string[] }[];
     badRows: [RowErrorMessage, number[]][];
   } {
     const MAX_BATCH_SIZE = 10;
-    let count = 1;
-    let headers: unknown[] | undefined = undefined;
-    let batchedRows: {indices: number[]; UIDs: string[]; rows: unknown[][]}[] = [];
+    let batchedRows: { indices: number[]; UIDs: string[]; rows: unknown[][] }[] = [];
     const tooManyOrMissingProperties: number[] = [];
-    for (const row of csv.split(/\r?\n/)) {
-      const values = row.split(',').map(GraphItemService.parseValue);
 
-      if (headers === undefined) {
-        // We skip the first column (uid)
-        headers = values.slice(1);
-      } else {
-        count++;
-        const [UID, ...properties] = values;
-        if (properties.length !== headers.length) {
-          tooManyOrMissingProperties.push(count);
-          continue;
-        }
+    // We skip the first column (uid)
+    const headers = csv[0].slice(1);
 
-        // Assign node to a batch
-        if (
+    for (let i = 1; i < csv.length; i++) {
+
+      const rowIndex = i + 1;
+
+      const [UID, ...properties] = csv[i];
+
+      // Assign node to a batch
+      if (
           // Initialize the batch
           batchedRows.length === 0 ||
           // First batch is of one element to build and cache the query execution plan in neo4j
           batchedRows.length === 1 ||
           // Create a new batch if last batch has reached `MAX_BATCH_SIZE` elements
           batchedRows[batchedRows.length - 1].rows.length === MAX_BATCH_SIZE
-        ) {
-          batchedRows.push({indices: [count], rows: [properties], UIDs: [UID + '']});
-        } else {
-          batchedRows[batchedRows.length - 1].indices.push(count);
-          batchedRows[batchedRows.length - 1].rows.push(properties);
-          batchedRows[batchedRows.length - 1].UIDs.push(UID + '');
-        }
+      ) {
+        batchedRows.push({indices: [rowIndex], rows: [properties], UIDs: [UID + '']});
+      } else {
+        batchedRows[batchedRows.length - 1].indices.push(rowIndex);
+        batchedRows[batchedRows.length - 1].rows.push(properties);
+        batchedRows[batchedRows.length - 1].UIDs.push(UID + '');
       }
     }
+
     GraphItemService.checkNonEmptyHeaders(headers);
+
     return {
       // The header is not an item
-      total: count - 1,
+      total: csv.length - 1,
       headers: headers,
       batchedRows: batchedRows,
       badRows: [[RowErrorMessage.TOO_MANY_OR_MISSING_PROPERTIES, tooManyOrMissingProperties]]
@@ -257,7 +265,6 @@ export class GraphItemService {
     badRows: [RowErrorMessage, number[]][];
   } {
     const MAX_BATCH_SIZE = 10;
-    let count = 1;
     let headers: unknown[] | undefined = undefined;
     let batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[] = [];
     const noExtremitiesRows: number[] = [];
@@ -333,5 +340,32 @@ export class GraphItemService {
       throw new Error('Headers cannot be empty');
     }
     // TODO check missing required properties (schemas) and unexpected properties (strict-schema)
+  }
+
+  private static parseCSV(csv: string): ParsedCSV | RowErrorMessage {
+    try {
+      return parse(csv, {
+        cast: (value) => {
+          if (value === 'string' && value.length === 0) {
+            return null;
+          }
+          if (/\d+,\d+/.test(value)) {
+            return parseFloat(value.replace(',', '.'));
+          }
+          return value;
+        }
+      });
+    }
+    catch (error)
+    {
+      if (error.message.startsWith('Invalid Record Length'))
+      {
+        return RowErrorMessage.EMPTY_LINE;
+      }
+      else (error.message.startsWith('Invalid Closing Quote'))
+      {
+        return RowErrorMessage.MISSING_CLOSING_QUOTE;
+      }
+    }
   }
 }
