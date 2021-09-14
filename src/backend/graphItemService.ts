@@ -200,19 +200,10 @@ export class GraphItemService {
   } {
     const MAX_BATCH_SIZE = 10;
     let count = 1;
-    let emptyHeadersCount = 0;
     let headers: unknown[] | undefined = undefined;
     let batchedRows: {indices: number[]; UIDs: string[]; rows: unknown[][]}[] = [];
     const tooManyOrMissingProperties: number[] = [];
     for (const row of csv.split(/\r?\n/)) {
-      // If row.length is 0 it means that we are parsing an empty line so we just skip it
-      if (row.length === 0)
-      {
-        count++;
-        emptyHeadersCount++;
-        continue;
-      }
-
       const values = row.split(',').map(GraphItemService.parseValue);
 
       if (headers === undefined) {
@@ -220,12 +211,11 @@ export class GraphItemService {
         headers = values.slice(1);
       } else {
         count++;
-
         const [UID, ...properties] = values;
-          if (properties.length !== headers.length) {
-            tooManyOrMissingProperties.push(count);
-            continue;
-          }
+        if (properties.length !== headers.length) {
+          tooManyOrMissingProperties.push(count);
+          continue;
+        }
 
         // Assign node to a batch
         if (
@@ -247,7 +237,7 @@ export class GraphItemService {
     GraphItemService.checkNonEmptyHeaders(headers);
     return {
       // The header is not an item
-      total: count - 1 - emptyHeadersCount,
+      total: count - 1,
       headers: headers,
       batchedRows: batchedRows,
       badRows: [[RowErrorMessage.TOO_MANY_OR_MISSING_PROPERTIES, tooManyOrMissingProperties]]
@@ -268,7 +258,6 @@ export class GraphItemService {
   } {
     const MAX_BATCH_SIZE = 10;
     let count = 1;
-    let emptyHeadersCount = 0;
     let headers: unknown[] | undefined = undefined;
     let batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[] = [];
     const noExtremitiesRows: number[] = [];
@@ -276,15 +265,6 @@ export class GraphItemService {
 
     // Parse row by row
     for (const row of params.csv.split(/\r?\n/)) {
-
-      // If row.length is 0 it means that we are parsing an empty line so we just skip it
-      if (row.length === 0)
-      {
-        count ++;
-        emptyHeadersCount++;
-        continue;
-      }
-
       const values = row.split(',').map(GraphItemService.parseValue);
 
       // First row is for headers
@@ -330,7 +310,7 @@ export class GraphItemService {
     GraphItemService.checkNonEmptyHeaders(headers);
     return {
       // The header is not an item
-      total: count - 1 - emptyHeadersCount,
+      total: count - 1,
       headers: headers,
       batchedRows: batchedRows,
       badRows: [
