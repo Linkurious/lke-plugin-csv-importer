@@ -7,6 +7,7 @@ nodeJob {
   runE2eTests = false
 
   createGitTag = true
+  gitTagPrefix = 'v'
   runBookeeping = true
 
   //static asset upload
