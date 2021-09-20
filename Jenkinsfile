@@ -7,6 +7,7 @@ nodeJob {
   runE2eTests = false
 
   createGitTag = true
+  runBookeeping = true
 
   //static asset upload
   runPrivateNpmPublish = false
