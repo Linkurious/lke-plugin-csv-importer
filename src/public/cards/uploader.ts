@@ -1,4 +1,5 @@
-import {startWaiting, stopWaiting} from "../utils";
+import { startWaiting, stopWaiting } from "../utils";
+import { CSVUtils } from "./CSVUtils";
 
 const FILE_SIZE_LIMIT = 3.5 * Math.pow(10, 6);
 
@@ -92,9 +93,19 @@ export class CSVUploader {
           stopWaiting();
           if (event && event.target && event.target.result) {
             const result = event.target.result as string;
-            // this regex identifies all new line characters (independently of the OS: windows or unix)
-            // then it extracts the first line (csv headers)
-            const headers = result.split(/\r?\n|\r/, 1)[0];
+
+            const parsedCSV = CSVUtils.parseCSVFile(result);
+
+            const error = CSVUtils.checkGlobalErrors(parsedCSV);
+            if (error) {
+              this.fileError.innerHTML = error;
+              this.showError();
+              reject(error);
+              return;
+            }
+
+            // TODO change propertiesName: string to string[]
+            const headers = parsedCSV.data[0].join(',');
             resolve({
               sourceKey: sourceKey,
               propertiesName: headers,
