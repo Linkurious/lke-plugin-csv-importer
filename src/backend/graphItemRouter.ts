@@ -12,7 +12,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
   options.router.post(
     '/importNodes',
     respond(async (req: Request) => {
-      if (graphItemService.importResult?.status === 'importing') {
+      if (graphItemService.importState.importing) {
         return;
       }
       const rc = options.getRestClient(req);
@@ -28,7 +28,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
   options.router.post(
     '/importEdges',
     respond(async (req: Request) => {
-      if (graphItemService.importResult?.status === 'importing') {
+      if (graphItemService.importState.importing) {
         return;
       }
       const rc = options.getRestClient(req);
@@ -44,11 +44,7 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
   options.router.post(
     '/importStatus',
     respond(() => {
-      const result = {...graphItemService.importResult};
-      if (result.status === 'done') {
-        graphItemService.importResult = undefined;
-      }
-      return Promise.resolve(result);
+      return Promise.resolve(graphItemService.importState);
     })
   );
 };

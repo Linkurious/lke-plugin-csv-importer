@@ -1,6 +1,6 @@
 import {EntitiesTypes} from "../models";
 import * as utils from "../utils";
-import {ImportItemsResponse} from "../../@types/shared";
+import {ImportResult, ImportState} from "../../@types/shared";
 
 /**
  * Class that handles all the logic for the entity properties card
@@ -72,7 +72,7 @@ export class CSVEntityProperties {
     csv: string,
     entityName?: string,
     sourceKey?: string
-  ): Promise<ImportItemsResponse> {
+  ): Promise<ImportResult> {
     utils.startWaiting();
     try {
       await utils.makeRequest("POST", "api/importNodes", {
@@ -80,7 +80,7 @@ export class CSVEntityProperties {
         itemType: entityName,
         csv: csv
       });
-      return await this.importListener()
+      return this.importListener()
     } catch (error) {
       throw new Error("Import has failed");
     } finally {
@@ -88,13 +88,13 @@ export class CSVEntityProperties {
     }
   }
 
-  async importListener(): Promise<ImportItemsResponse> {
+  async importListener(): Promise<ImportResult> {
     return new Promise((resolve) => {
       setTimeout(async () => {
         const response = await utils.makeRequest("POST", "api/importStatus", {});
-        const parsedResponse: ImportItemsResponse = JSON.parse(response.response);
-        if (parsedResponse.status === 'done') {
-          resolve(parsedResponse)
+        const parsedResponse: ImportState = JSON.parse(response.response);
+        if (!parsedResponse.importing) {
+          resolve(parsedResponse.lastImport!);
         } else {
           utils.updateProgress(parsedResponse.progress);
           resolve(await this.importListener())
@@ -104,15 +104,16 @@ export class CSVEntityProperties {
 
   }
 
-  nextStep(
+  async nextStep(
     csv: string,
     entityName?: string,
     sourceKey?: string
-  ): Promise<ImportItemsResponse> | void {
+  ): Promise<ImportResult | undefined> {
     this.hideCard();
     if (this.entityType === EntitiesTypes.nodes) {
       return this.importNodes(csv, entityName, sourceKey);
     }
+    return;
   }
 
   hideCard() {

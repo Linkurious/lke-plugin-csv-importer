@@ -1,5 +1,5 @@
 import { startWaiting, stopWaiting } from "../utils";
-import { CSVUtils } from "./CSVUtils";
+import { CSVUtils } from "../shared";
 
 const FILE_SIZE_LIMIT = 3.5 * Math.pow(10, 6);
 
@@ -94,21 +94,18 @@ export class CSVUploader {
           if (event && event.target && event.target.result) {
             const result = event.target.result as string;
 
-            const parsedCSV = CSVUtils.parseCSVFile(result);
-
-            const error = CSVUtils.checkGlobalErrors(parsedCSV);
-            if (error) {
-              this.fileError.innerHTML = error;
+            const parsedCSV = CSVUtils.parseCSV(result);
+            if ('error' in parsedCSV) {
+              this.fileError.innerHTML = parsedCSV.error;
               this.showError();
-              reject(error);
+              reject(parsedCSV.error);
               return;
             }
 
-            // TODO change propertiesName: string to string[]
-            const headers = parsedCSV.data[0].join(',');
             resolve({
               sourceKey: sourceKey,
-              propertiesName: headers,
+              // TODO change propertiesName: string to string[]
+              propertiesName: parsedCSV.headers.join(','),
               entityName: this._entityName,
               csv: result
             });
