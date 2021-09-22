@@ -38,8 +38,13 @@ function stopWaiting() {
  * Go back to linkurious home page
  */
 function goToLinkurious(sourceKey: string) {
-  const basePath = window.location.pathname.split('/')[1];
-  const location = window.location.origin + `/${basePath === 'plugins' ? '' : basePath}` + `/dashboard?key=${sourceKey}`;
+  let basePath = window.location.pathname.split('/')[1];
+  if (basePath === undefined || basePath === 'plugins') {
+    basePath = '';
+  } else {
+    basePath = '/' + basePath;
+  }
+  const location = window.location.origin + basePath + `/dashboard?key=${sourceKey}`;
   window.location = (location as unknown) as Location;
 }
 
