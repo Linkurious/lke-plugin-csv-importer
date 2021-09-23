@@ -43,8 +43,6 @@ export = function configureRoutes(options: PluginRouteOptions<PluginConfig>): vo
 
   options.router.post(
     '/importStatus',
-    respond(() => {
-      return Promise.resolve(graphItemService.importState);
-    })
+    respond(() => graphItemService.importState)
   );
 };
