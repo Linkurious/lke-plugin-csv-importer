@@ -196,10 +196,10 @@ export class GraphItemService {
     batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[];
   } {
     const MAX_BATCH_SIZE = 10;
-    let propertyKeys = parsedCSV.headers.slice(1);
     let batchedRows: {indices: number[]; UIDs: string[]; rows: unknown[][]}[] = [];
     for (let recordIndex = 1; recordIndex <= parsedCSV.records.length; recordIndex++) {
-      const [UID, ...properties] = parsedCSV.records[recordIndex];
+      const properties = parsedCSV.records[recordIndex];
+      const UID = properties[0];
 
       // Assign node to a batch
       if (
@@ -218,7 +218,7 @@ export class GraphItemService {
       }
     }
     return {
-      propertyKeys: propertyKeys,
+      propertyKeys: parsedCSV.headers.slice(),
       batchedRows: batchedRows
     };
   }
