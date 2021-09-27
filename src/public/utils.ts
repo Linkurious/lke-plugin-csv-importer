@@ -38,11 +38,12 @@ function stopWaiting() {
  * Go back to linkurious home page
  */
 function goToLinkurious(sourceKey: string) {
-  let basePath = window.location.pathname.split('/')[1];
-  if (basePath === undefined || basePath === 'plugins') {
+  let basePath;
+  const match = window.location.pathname.match(/([^/]+)\/plugins\/.+/);
+  if (match === null) {
     basePath = '';
   } else {
-    basePath = '/' + basePath;
+    basePath = match[1];
   }
   const location = window.location.origin + basePath + `/dashboard?key=${sourceKey}`;
   window.location = (location as unknown) as Location;
