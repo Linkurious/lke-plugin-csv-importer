@@ -43,7 +43,7 @@ function goToLinkurious(sourceKey: string) {
   if (match === null) {
     basePath = '';
   } else {
-    basePath = match[1];
+    basePath = '/' + match[1];
   }
   const location = window.location.origin + basePath + `/dashboard?key=${sourceKey}`;
   window.location = (location as unknown) as Location;
