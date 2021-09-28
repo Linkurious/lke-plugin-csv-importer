@@ -59,7 +59,7 @@ function main() {
   const showExampleButton = document.getElementById("showExampleButton") as HTMLElement;
   fileInput.addEventListener("change", uploader.showFile.bind(uploader));
   readButton.addEventListener("click", async () => {
-    ({sourceKey, csv, headers: headers, entityName} = await uploader.readFile());
+    ({sourceKey, csv, headers, entityName} = await uploader.readFile());
     entityPicker.showCard();
   });
   showExampleButton.addEventListener("click", () => {
