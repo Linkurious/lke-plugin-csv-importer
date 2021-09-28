@@ -71,7 +71,7 @@ export class CSVUploader {
    */
   readFile(): Promise<{
     sourceKey: string,
-    propertiesName: string,
+    propertyKeys: string[],
     entityName: string,
     csv: string
   }> {
@@ -104,8 +104,7 @@ export class CSVUploader {
 
             resolve({
               sourceKey: sourceKey,
-              // TODO change propertiesName: string to string[]
-              propertiesName: parsedCSV.headers.join(','),
+              propertyKeys: parsedCSV.headers,
               entityName: this._entityName,
               csv: result
             });

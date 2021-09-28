@@ -29,21 +29,24 @@ export class CSVEntityProperties {
     this.hideCard();
   }
 
-  setTitle(entityType: EntitiesTypes) {
-    this.titleHolder.innerText = `The following will be mapped to ${this.titleCompleter[entityType]} properties`;
+  setTitle(entityType: EntitiesTypes, headers: string[]) {
+    if (headers.length > 0) {
+      this.titleHolder.innerText = `The following will be mapped to ${this.titleCompleter[entityType]} properties`;
+    } else {
+      this.titleHolder.innerText = `There are no ${this.titleCompleter[entityType]} properties in the file`;
+    }
   }
 
   /**
    * show properties name that will be added to each node (headers name)
    */
-  setNameProperties(entityType: EntitiesTypes, propertiesName?: string) {
+  setNameProperties(entityType: EntitiesTypes, headers: string[]) {
     utils.removeChildrenOf(this.entityProperties);
-    if (propertiesName) {
-      const headersParsed = propertiesName.split(",");
+    if (headers.length > 0) {
       const headersFinal =
-        entityType === EntitiesTypes.nodes
-          ? headersParsed
-          : headersParsed.slice(2);
+        entityType === EntitiesTypes.NODES
+          ? headers
+          : headers.slice(2);
       headersFinal.forEach((header: string) => {
         this.addProperty(header);
       });
@@ -52,7 +55,7 @@ export class CSVEntityProperties {
 
   setButtonName(entityType: EntitiesTypes) {
     this.nextButton.innerText =
-      entityType === EntitiesTypes.nodes ? "Import" : "Next";
+      entityType === EntitiesTypes.NODES ? "Import" : "Next";
   }
 
   /**
@@ -110,7 +113,7 @@ export class CSVEntityProperties {
     sourceKey?: string
   ): Promise<ImportResult | undefined> {
     this.hideCard();
-    if (this.entityType === EntitiesTypes.nodes) {
+    if (this.entityType === EntitiesTypes.NODES) {
       return this.importNodes(csv, entityName, sourceKey);
     }
     return;
@@ -122,12 +125,12 @@ export class CSVEntityProperties {
 
   showCard(
     entityType?: EntitiesTypes,
-    propertiesName?: string,
+    propertyKeys?: string[]
   ) {
-    if (entityType !== undefined) {
+    if (entityType !== undefined && propertyKeys !== undefined) {
       this.entityType = entityType;
-      this.setTitle(entityType);
-      this.setNameProperties(entityType, propertiesName);
+      this.setTitle(entityType, propertyKeys);
+      this.setNameProperties(entityType, propertyKeys);
       this.setButtonName(entityType);
     }
     this.container.style.display = "block";
