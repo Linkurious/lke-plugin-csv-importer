@@ -43,11 +43,11 @@ export class CSVEntityProperties {
   setNameProperties(entityType: EntitiesTypes, headers: string[]) {
     utils.removeChildrenOf(this.entityProperties);
     if (headers.length > 0) {
-      const headersFinal =
+      const propertyNames =
         entityType === EntitiesTypes.NODES
           ? headers
           : headers.slice(2);
-      headersFinal.forEach((header: string) => {
+      propertyNames.forEach((header: string) => {
         this.addProperty(header);
       });
     }
@@ -125,12 +125,12 @@ export class CSVEntityProperties {
 
   showCard(
     entityType?: EntitiesTypes,
-    propertyKeys?: string[]
+    headers?: string[]
   ) {
-    if (entityType !== undefined && propertyKeys !== undefined) {
+    if (entityType !== undefined && headers !== undefined) {
       this.entityType = entityType;
-      this.setTitle(entityType, propertyKeys);
-      this.setNameProperties(entityType, propertyKeys);
+      this.setTitle(entityType, headers);
+      this.setNameProperties(entityType, headers);
       this.setButtonName(entityType);
     }
     this.container.style.display = "block";
