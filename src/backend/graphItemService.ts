@@ -10,7 +10,7 @@ import {CSVUtils, ParsedCSV} from './shared';
 export interface GroupedRecords {
   rows: unknown[][];
   UIDs: string[];
-  indices: number[];
+  rowNumbers: number[];
 }
 
 export class GraphItemService {
@@ -190,7 +190,7 @@ export class GraphItemService {
         }
       } catch (e) {
         log('Batch has failed', e);
-        errors.add(e, batch.indices);
+        errors.add(e, batch.rowNumbers);
       }
       this.updateImportProgress(totalRecords, i);
     }
@@ -214,8 +214,8 @@ export class GraphItemService {
     for (let i = 0; i < parsedCSV.records.length; i++) {
       const properties = parsedCSV.records[i];
       const UID = properties[0];
-      // Records start counting from 2 (1 is the header)
-      const recordNumber = i + 2;
+      // The items to import are in rows 2, 3, etc (the header is row 1)
+      const rowNumber = i + 2;
 
       // Assign node to a batch
       if (
@@ -226,9 +226,9 @@ export class GraphItemService {
         // Create a new batch if last batch has reached `MAX_BATCH_SIZE` elements
         batchedRows[batchedRows.length - 1].rows.length === MAX_BATCH_SIZE
       ) {
-        batchedRows.push({indices: [recordNumber], rows: [properties], UIDs: [UID + '']});
+        batchedRows.push({rowNumbers: [rowNumber], rows: [properties], UIDs: [UID + '']});
       } else {
-        batchedRows[batchedRows.length - 1].indices.push(recordNumber);
+        batchedRows[batchedRows.length - 1].rowNumbers.push(rowNumber);
         batchedRows[batchedRows.length - 1].rows.push(properties);
         batchedRows[batchedRows.length - 1].UIDs.push(UID + '');
       }
@@ -261,15 +261,15 @@ export class GraphItemService {
     // Parse row by row
     for (let i = 0; i < parsedCSV.records.length; i++) {
       let [from, to, ...propertyValues] = parsedCSV.records[i - 1];
-      // Records start counting from 2 (1 is the header)
-      const recordNumber = i + 2;
+      // The items to import are in rows 2, 3, etc (the header is row 1)
+      const rowNumber = i + 2;
 
       const sourceID = GraphItemService.nodeIDS.get(sourceType + from);
       const targetID = GraphItemService.nodeIDS.get(destinationType + to);
 
       // Exclude edge from the batches if its extremities are not found
       if (sourceID === undefined || targetID === undefined) {
-        noExtremitiesRows.push(recordNumber);
+        noExtremitiesRows.push(rowNumber);
         continue;
       }
 
@@ -283,9 +283,9 @@ export class GraphItemService {
         // Create a new batch if last batch has reached `MAX_BATCH_SIZE` elements
         batchedRows[batchedRows.length - 1].rows.length === MAX_BATCH_SIZE
       ) {
-        batchedRows.push({indices: [recordNumber], rows: [propertyValues], UIDs: []});
+        batchedRows.push({rowNumbers: [rowNumber], rows: [propertyValues], UIDs: []});
       } else {
-        batchedRows[batchedRows.length - 1].indices.push(recordNumber);
+        batchedRows[batchedRows.length - 1].rowNumbers.push(rowNumber);
         batchedRows[batchedRows.length - 1].rows.push(propertyValues);
       }
     }
