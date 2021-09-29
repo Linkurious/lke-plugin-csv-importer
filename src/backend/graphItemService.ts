@@ -1,7 +1,17 @@
 import {RestClient, RunQueryResponse} from '@linkurious/rest-client';
 import {GroupedErrors, log, RowErrorMessage} from './utils';
 import {ImportEdgesParams, ImportState, ImportNodesParams} from '../@types/shared';
-import {CSVUtils, ParsedCSV} from "./shared";
+import {CSVUtils, ParsedCSV} from './shared';
+
+/**
+ * This type is convenient to separate concerns among `buildEdgesQuery()`,
+ * `cacheGraphNodeIDs()` and `errors.add()`
+ */
+export interface GroupedRecords {
+  rows: unknown[][];
+  UIDs: string[];
+  indices: number[];
+}
 
 export class GraphItemService {
   // Cache from category + UID to graph ID
@@ -96,7 +106,7 @@ export class GraphItemService {
     return queryResponse.body;
   }
 
-  public updateImportProgress(total: number, processed: number, ): void {
+  public updateImportProgress(total: number, processed: number): void {
     this.importState = {
       importing: true,
       progress: Math.floor(processed / (total + 1))
@@ -104,7 +114,7 @@ export class GraphItemService {
   }
 
   public finishImport(errors: string): void;
-  public finishImport(errors: GroupedErrors, total: number): void
+  public finishImport(errors: GroupedErrors, total: number): void;
   public finishImport(errors: GroupedErrors | string, total?: number): void {
     if (typeof errors === 'string') {
       this.importState = {
@@ -112,7 +122,7 @@ export class GraphItemService {
         lastImport: {
           globalError: errors
         }
-      }
+      };
     } else if (errors.total === 0) {
       this.importState = {
         importing: false,
@@ -146,7 +156,7 @@ export class GraphItemService {
     const isEdge = 'sourceType' in params;
     const totalRecords = parsedCSV.records.length;
     let propertyKeys: string[];
-    let batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[];
+    let batchedRows: GroupedRecords[];
     let badRows: [RowErrorMessage, number[]][] = [];
 
     // 1. Batch items
@@ -186,20 +196,26 @@ export class GraphItemService {
     }
 
     // LKE-4201 Remove the CSV_PLUGIN category
-    await GraphItemService.runCypherQuery(rc,'MATCH(c:CSV_PLUGIN) DETACH DELETE c RETURN 0', params.sourceKey);
+    await GraphItemService.runCypherQuery(
+      rc,
+      'MATCH(c:CSV_PLUGIN) DETACH DELETE c RETURN 0',
+      params.sourceKey
+    );
 
     this.finishImport(errors, totalRecords);
   }
 
   public static createNodeBatches(parsedCSV: ParsedCSV): {
     propertyKeys: string[];
-    batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[];
+    batchedRows: GroupedRecords[];
   } {
     const MAX_BATCH_SIZE = 10;
-    let batchedRows: {indices: number[]; UIDs: string[]; rows: unknown[][]}[] = [];
-    for (let recordIndex = 1; recordIndex <= parsedCSV.records.length; recordIndex++) {
-      const properties = parsedCSV.records[recordIndex];
+    let batchedRows: GroupedRecords[] = [];
+    for (let i = 0; i < parsedCSV.records.length; i++) {
+      const properties = parsedCSV.records[i];
       const UID = properties[0];
+      // Records start counting from 2 (1 is the header)
+      const recordNumber = i + 2;
 
       // Assign node to a batch
       if (
@@ -210,9 +226,9 @@ export class GraphItemService {
         // Create a new batch if last batch has reached `MAX_BATCH_SIZE` elements
         batchedRows[batchedRows.length - 1].rows.length === MAX_BATCH_SIZE
       ) {
-        batchedRows.push({indices: [recordIndex], rows: [properties], UIDs: [UID + '']});
+        batchedRows.push({indices: [recordNumber], rows: [properties], UIDs: [UID + '']});
       } else {
-        batchedRows[batchedRows.length - 1].indices.push(recordIndex);
+        batchedRows[batchedRows.length - 1].indices.push(recordNumber);
         batchedRows[batchedRows.length - 1].rows.push(properties);
         batchedRows[batchedRows.length - 1].UIDs.push(UID + '');
       }
@@ -226,28 +242,34 @@ export class GraphItemService {
   /**
    * Returns edges split in groups
    */
-  public static createEdgeBatches(parsedCSV: ParsedCSV, sourceType: string, destinationType: string): {
+  public static createEdgeBatches(
+    parsedCSV: ParsedCSV,
+    sourceType: string,
+    destinationType: string
+  ): {
     propertyKeys: string[];
-    batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[];
+    batchedRows: GroupedRecords[];
     badRows: [RowErrorMessage, number[]][];
   } {
     // We skip the first column (source node uid) and the second column (target node uid)
     const propertyKeys = parsedCSV.headers.slice(2);
 
     const MAX_BATCH_SIZE = 10;
-    let batchedRows: {indices: number[]; rows: unknown[][]; UIDs: string[]}[] = [];
+    let batchedRows: GroupedRecords[] = [];
     const noExtremitiesRows: number[] = [];
 
     // Parse row by row
-    for (let recordIndex = 1; recordIndex <= parsedCSV.records.length; recordIndex++) {
-      let [from, to, ...propertyValues] = parsedCSV.records[recordIndex];
+    for (let i = 0; i < parsedCSV.records.length; i++) {
+      let [from, to, ...propertyValues] = parsedCSV.records[i - 1];
+      // Records start counting from 2 (1 is the header)
+      const recordNumber = i + 2;
 
       const sourceID = GraphItemService.nodeIDS.get(sourceType + from);
       const targetID = GraphItemService.nodeIDS.get(destinationType + to);
 
       // Exclude edge from the batches if its extremities are not found
       if (sourceID === undefined || targetID === undefined) {
-        noExtremitiesRows.push(recordIndex);
+        noExtremitiesRows.push(recordNumber);
         continue;
       }
 
@@ -261,18 +283,16 @@ export class GraphItemService {
         // Create a new batch if last batch has reached `MAX_BATCH_SIZE` elements
         batchedRows[batchedRows.length - 1].rows.length === MAX_BATCH_SIZE
       ) {
-        batchedRows.push({indices: [recordIndex], rows: [propertyValues], UIDs: []});
+        batchedRows.push({indices: [recordNumber], rows: [propertyValues], UIDs: []});
       } else {
-        batchedRows[batchedRows.length - 1].indices.push(recordIndex);
+        batchedRows[batchedRows.length - 1].indices.push(recordNumber);
         batchedRows[batchedRows.length - 1].rows.push(propertyValues);
       }
     }
     return {
       propertyKeys: propertyKeys,
       batchedRows: batchedRows,
-      badRows: [
-        [RowErrorMessage.SOURCE_TARGET_NOT_FOUND, noExtremitiesRows]
-      ]
+      badRows: [[RowErrorMessage.SOURCE_TARGET_NOT_FOUND, noExtremitiesRows]]
     };
   }
 }

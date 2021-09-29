@@ -87,11 +87,11 @@ export class GroupedErrors extends Map<RowErrorMessage, number[]> {
 }
 
 export function respond(
-  handler: (req: Request) => {[k: string]: unknown} | void | Promise<{[k: string]: unknown} | void>
+  handler: (req: Request) => Promise<{[k: string]: unknown} | void>
 ) {
   return async (req: Request, res: _Response): Promise<void> => {
     try {
-      const body = await Promise.resolve().then(() => handler(req));
+      const body = await handler(req);
       if (body === undefined) {
         res.status(204);
         res.send();

@@ -1,3 +1,5 @@
+// TODO move shared files to a lib folder with its own package.json
+//  it is currently duplicated in src/backend/shared.ts and src/public/shared.ts
 import {parse} from 'papaparse';
 
 export type CSVRecord = (string | number | boolean | null)[];
