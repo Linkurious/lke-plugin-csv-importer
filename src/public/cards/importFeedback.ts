@@ -45,7 +45,7 @@ export class CSVImportFeedback {
     switch (total) {
       case feedback.success:
         this.fillImportFeedback(
-          `All ${total} ${item} have been imported`,
+          `All ${total} ${item} have been imported. Please index the data-source to make them searchable`,
           'Import successful',
           'success'
           )
@@ -61,12 +61,13 @@ export class CSVImportFeedback {
       default :
         const error = feedback.failed === 1 ? 'error' : 'errors';
         this.fillImportFeedback(
-          `${feedback.failed}/${total} ${item} have not been imported due to the following ${error}`,
+          `Only ${feedback.success}/${total} ${item} have been imported. Please index the data-source to make them searchable.<br><br>` +
+            `While ${feedback.failed}/${total} ${item} have <i>not</i> been imported due to the following ${error}`,
           'Import incomplete',
           'incomplete',
           errors,
-          `Re-upload only the failed ${feedback.failed === 1 ? 'row' : 'rows'}`
-        )
+          `Please only re-upload only the failed ${feedback.failed === 1 ? "row" : "rows"} when retrying.`
+        );
 
         break;
     }
