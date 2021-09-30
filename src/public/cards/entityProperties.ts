@@ -30,6 +30,7 @@ export class CSVEntityProperties {
   }
 
   setTitle(entityType: EntityType, headers: string[]) {
+    // For edges only the first 2 headers are not property keys, for nodes all the headers are property keys
     if (headers.length > (entityType === EntityType.NODE ? 0 : 2)) {
       this.titleHolder.innerText = `The following will be mapped to ${this.titleCompleter[entityType]} properties`;
     } else {
