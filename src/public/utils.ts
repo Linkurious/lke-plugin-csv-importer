@@ -35,7 +35,7 @@ function stopWaiting() {
 }
 
 /**
- * Go back to linkurious home page
+ * Go back to linkurious data-source settings page
  */
 function goToLinkurious(sourceKey: string) {
   let basePath;
