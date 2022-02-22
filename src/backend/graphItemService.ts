@@ -20,6 +20,7 @@ export class GraphItemService {
     importing: false
   };
 
+  private static readonly REPORT_NODE_CATEGORY = 'CSV_PLUGIN';
 
   /**
    * Names in Cypher are wrapped in back-ticks ("`").
@@ -48,7 +49,7 @@ export class GraphItemService {
       `CREATE ${node} ` +
       // We return the ids collection as a string because LKE does not support array values via bolt
       `WITH reduce(acc = '', id IN collect(id(n)) | acc + ' ' + id) AS ids ` +
-      'CREATE (c:CSV_PLUGIN {result: ids}) ' +
+      `CREATE (c:${GraphItemService.REPORT_NODE_CATEGORY} {result: ids}) ` +
       'RETURN c'
     );
   }
@@ -162,6 +163,13 @@ export class GraphItemService {
       return;
     }
 
+    try {
+      await GraphItemService.assertNodeCategoryIsAvailable(GraphItemService.REPORT_NODE_CATEGORY, params.sourceKey, rc);
+    } catch (error) {
+      this.finishImport(error.message);
+      return;
+    }
+
     const isEdge = 'sourceType' in params;
     const totalRecords = parsedCSV.records.length;
     let propertyKeys: string[];
@@ -209,11 +217,11 @@ export class GraphItemService {
       // LKE-4201 Remove the CSV_PLUGIN category
       await GraphItemService.runCypherQuery(
           rc,
-          'MATCH(c:CSV_PLUGIN) DETACH DELETE c RETURN 0',
+          `MATCH(c:${GraphItemService.REPORT_NODE_CATEGORY}) DETACH DELETE c RETURN 0`,
           params.sourceKey
       );
     } catch (e) {
-      log('Failed to clean up temporary CSV_PLUGIN node', e);
+      log(`Failed to clean up temporary ${GraphItemService.REPORT_NODE_CATEGORY} node`, e);
     }
 
     this.finishImport(errors, totalRecords);
@@ -306,5 +314,19 @@ export class GraphItemService {
       batchedRows: batchedRows,
       badRows: [[RowErrorMessage.SOURCE_TARGET_NOT_FOUND, noExtremitiesRows]]
     };
+  }
+
+  private static async assertNodeCategoryIsAvailable(nodeCategory: string, sourceKey: string, rc: RestClient): Promise<void> {
+    // The node category will not be available if:
+      // 1. As an admin, you are in strict schema and the category is not declared
+      // 2. As a custom group user, the category is not declared in the schema
+      // 3. As a standard user (Custom group), the category is declared but not available
+      // 4. As any user, PKAR is enabled and the category is not accessible
+    const response = await GraphItemService.runCypherQuery(rc, `CREATE (n:${nodeCategory}) RETURN n`, sourceKey);
+    if (response.nodes.length !== 1) {
+      throw new Error(`Cannot create nodes with category ${nodeCategory}, please switch to partial schema and use an admin account.`);
+    } else {
+      await GraphItemService.runCypherQuery(rc, `MATCH (n) WHERE ID(n) = ${response.nodes[0].id} DETACH DELETE n`, sourceKey);
+    }
   }
 }
