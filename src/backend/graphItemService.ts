@@ -113,7 +113,7 @@ export class GraphItemService {
       sourceKey: sourceKey
     });
     if (!queryResponse.isSuccess()) {
-      throw queryResponse;
+      throw Error(`Failed to execute cypher query. Error: ${queryResponse.body.key} ${queryResponse.body.message}`);
     }
     return queryResponse.body;
   }
