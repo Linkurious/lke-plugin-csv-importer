@@ -325,7 +325,7 @@ export class GraphItemService {
    * @param rc
    */
   private static async assertHasReportNodeAccess(rc: RestClient, sourceKey: string): Promise<void> {
-    // The node category will not be available if:
+    // The CSV_PLUGIN node will not be returned by LKE if:
       // 1. As an admin, you are in strict schema and the category is not declared
       // 2. As a custom group user, the category is not declared in the schema
       // 3. As a standard user (Custom group), the category is declared but not available
