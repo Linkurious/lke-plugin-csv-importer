@@ -21,6 +21,8 @@ export class GraphItemService {
   };
 
   private static readonly REPORT_NODE_CATEGORY = 'CSV_PLUGIN';
+  private static readonly REPORT_NODE_PROPERTY= 'result';
+
 
   /**
    * Names in Cypher are wrapped in back-ticks ("`").
@@ -49,7 +51,7 @@ export class GraphItemService {
       `CREATE ${node} ` +
       // We return the ids collection as a string because LKE does not support array values via bolt
       `WITH reduce(acc = '', id IN collect(id(n)) | acc + ' ' + id) AS ids ` +
-      `CREATE (c:${GraphItemService.REPORT_NODE_CATEGORY} {result: ids}) ` +
+      `CREATE (c:${GraphItemService.REPORT_NODE_CATEGORY} {${this.REPORT_NODE_PROPERTY}: ids}) ` +
       'RETURN c'
     );
   }
@@ -87,7 +89,7 @@ export class GraphItemService {
   ): void {
     // LKE can only return graph items,
     // so for queries to return scalar values they need to put the result inside (n: {result: <here>}) and return n
-    const result = runQueryResponse.nodes[0].data.properties.result;
+    const result = runQueryResponse.nodes[0].data.properties[this.REPORT_NODE_PROPERTY];
     const graphIDs =
       typeof result === 'object' && 'original' in result
         ? (result.original as string)
@@ -164,7 +166,7 @@ export class GraphItemService {
     }
 
     try {
-      await GraphItemService.assertNodeCategoryIsAvailable(GraphItemService.REPORT_NODE_CATEGORY, params.sourceKey, rc);
+      await GraphItemService.assertReportCategoryIsAvailable(params.sourceKey, rc);
     } catch (error) {
       this.finishImport(error.message);
       return;
@@ -316,17 +318,24 @@ export class GraphItemService {
     };
   }
 
-  private static async assertNodeCategoryIsAvailable(nodeCategory: string, sourceKey: string, rc: RestClient): Promise<void> {
+  private static async assertReportCategoryIsAvailable(sourceKey: string, rc: RestClient): Promise<void> {
     // The node category will not be available if:
       // 1. As an admin, you are in strict schema and the category is not declared
       // 2. As a custom group user, the category is not declared in the schema
       // 3. As a standard user (Custom group), the category is declared but not available
       // 4. As any user, PKAR is enabled and the category is not accessible
-    const response = await GraphItemService.runCypherQuery(rc, `CREATE (n:${nodeCategory}) RETURN n`, sourceKey);
+    const accessError = Error(`Access error, please switch to partial schema and use an admin account.`);
+    const response = await GraphItemService
+        .runCypherQuery(rc, `CREATE (n:${this.REPORT_NODE_CATEGORY} {${this.REPORT_NODE_PROPERTY}: 1}) RETURN n`, sourceKey);
     if (response.nodes.length !== 1) {
-      throw new Error(`Cannot create nodes with category ${nodeCategory}, please switch to partial schema and use an admin account.`);
+      log(`Cannot create nodes with category ${this.REPORT_NODE_CATEGORY}`);
+      throw accessError;
+    } else if (!(this.REPORT_NODE_PROPERTY in response.nodes[0].data.properties)) {
+      log(`Cannot read property ${this.REPORT_NODE_CATEGORY}.${this.REPORT_NODE_PROPERTY}`);
+      throw accessError;
     } else {
-      await GraphItemService.runCypherQuery(rc, `MATCH (n) WHERE ID(n) = ${response.nodes[0].id} DETACH DELETE n`, sourceKey);
+      await GraphItemService.runCypherQuery(rc, `MATCH (n) WHERE ID(n) = ${response.nodes[0].id} DETACH DELETE n RETURN null`, sourceKey)
+          .catch(/*ignore errors*/);
     }
   }
 }
