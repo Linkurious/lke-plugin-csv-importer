@@ -166,7 +166,7 @@ export class GraphItemService {
     }
 
     try {
-      await GraphItemService.assertReportCategoryIsAvailable(params.sourceKey, rc);
+      await GraphItemService.assertHasReportNodeAccess(rc, params.sourceKey);
     } catch (error) {
       this.finishImport(error.message);
       return;
@@ -318,7 +318,13 @@ export class GraphItemService {
     };
   }
 
-  private static async assertReportCategoryIsAvailable(sourceKey: string, rc: RestClient): Promise<void> {
+  /**
+   * Ensure that the current user has the correct privileges to import nodes and create a report of the nodes imported.
+   *
+   * @param sourceKey
+   * @param rc
+   */
+  private static async assertHasReportNodeAccess(rc: RestClient, sourceKey: string): Promise<void> {
     // The node category will not be available if:
       // 1. As an admin, you are in strict schema and the category is not declared
       // 2. As a custom group user, the category is not declared in the schema
