@@ -21,7 +21,7 @@ export class GraphItemService {
   };
 
   private static readonly REPORT_NODE_CATEGORY = 'CSV_PLUGIN';
-  private static readonly REPORT_NODE_PROPERTY= 'result';
+  private static readonly REPORT_NODE_PROPERTY = 'result';
 
 
   /**
@@ -340,8 +340,7 @@ export class GraphItemService {
       log(`Cannot read property ${this.REPORT_NODE_CATEGORY}.${this.REPORT_NODE_PROPERTY}`);
       throw accessError;
     } else {
-      await GraphItemService.runCypherQuery(rc, `MATCH (n) WHERE ID(n) = ${response.nodes[0].id} DETACH DELETE n RETURN null`, sourceKey)
-          .catch(/*ignore errors*/);
+      await GraphItemService.runCypherQuery(rc, `MATCH (n) WHERE ID(n) = ${response.nodes[0].id} DETACH DELETE n RETURN null`, sourceKey);
     }
   }
 }
