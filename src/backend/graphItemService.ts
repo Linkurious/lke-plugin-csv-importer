@@ -328,7 +328,7 @@ export class GraphItemService {
     // The CSV_PLUGIN node will not be returned by LKE if:
       // 1. As an admin, you are in strict schema and the category is not declared
       // 2. As a custom group user, the category is not declared in the schema
-      // 3. As a standard user (Custom group), the category is declared but not available
+      // 3. As a custom group user, the category is declared but not available (Admin intentionally marked the category as hidden)
       // 4. As any user, PKAR is enabled and the category is not accessible
     const accessError = Error(`Access error, please switch to partial schema and use an admin account.`);
     const response = await GraphItemService
