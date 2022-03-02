@@ -166,7 +166,7 @@ export class GraphItemService {
     }
 
     try {
-      await GraphItemService.assertHasReportNodeAccess(rc, params.sourceKey);
+      await GraphItemService.assertCanReadReportNode(rc, params.sourceKey);
     } catch (error) {
       this.finishImport(error.message);
       return;
@@ -324,7 +324,7 @@ export class GraphItemService {
    * @param sourceKey
    * @param rc
    */
-  private static async assertHasReportNodeAccess(rc: RestClient, sourceKey: string): Promise<void> {
+  private static async assertCanReadReportNode(rc: RestClient, sourceKey: string): Promise<void> {
     // The CSV_PLUGIN node will not be returned by LKE if:
       // 1. As an admin, you are in strict schema and the category is not declared
       // 2. As a custom group user, the category is not declared in the schema
