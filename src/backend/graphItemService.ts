@@ -114,8 +114,8 @@ export class GraphItemService {
     });
     if (!queryResponse.isSuccess()) {
       const cypherError = Error(`Failed to execute cypher query. Error: ${queryResponse.body.key} ${queryResponse.body.message}`);
+      log(cypherError.message + ` Query was: ${cypherQuery}`);
       if (queryResponse.body.key === LkErrorKey.FORBIDDEN) {
-        log(cypherError.message + ` Query was: ${cypherQuery}`);
         throw Error(`Access error, please use an admin account along with a partial schema.`);
       }
       throw cypherError;
