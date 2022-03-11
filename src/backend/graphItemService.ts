@@ -113,10 +113,12 @@ export class GraphItemService {
       sourceKey: sourceKey
     });
     if (!queryResponse.isSuccess()) {
+      const cypherError = Error(`Failed to execute cypher query. Error: ${queryResponse.body.key} ${queryResponse.body.message}`);
       if (queryResponse.body.key === LkErrorKey.FORBIDDEN) {
-        throw Error(`Access error, you are not allowed to execute queries on data-source "${sourceKey}", please use an admin account along with a partial schema.`);
+        log(cypherError.message + ` Query was: ${cypherQuery}`);
+        throw Error(`Access error, please use an admin account along with a partial schema.`);
       }
-      throw Error(`Failed to execute cypher query. Error: ${queryResponse.body.key} ${queryResponse.body.message}`);
+      throw cypherError;
     }
     return queryResponse.body;
   }
