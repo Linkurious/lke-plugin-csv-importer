@@ -116,7 +116,7 @@ export class GraphItemService {
       const cypherError = Error(`Failed to execute cypher query. Error: ${queryResponse.body.key} ${queryResponse.body.message}`);
       log(cypherError.message + ` Query was: ${cypherQuery}`);
       if (queryResponse.body.key === LkErrorKey.FORBIDDEN) {
-        throw Error(`Access error, please use an admin account along with a partial schema.`);
+        throw Error(`Access error: please make sure strict schema is disabled and you are using an admin account.`);
       }
       throw cypherError;
     }
@@ -335,7 +335,7 @@ export class GraphItemService {
       // 2. As a custom group user, the category is not declared in the schema
       // 3. As a custom group user, the category is declared but not available (Admin intentionally marked the category as hidden)
       // 4. As any user, PKAR is enabled and the category is not accessible
-    const accessError = Error(`Access error, please use an admin account along with a partial schema.`);
+    const accessError = Error(`Access error: please make sure strict schema is disabled and you are using an admin account.`);
     const response = await GraphItemService
         .runCypherQuery(rc, `CREATE (n:${this.REPORT_NODE_CATEGORY} {${this.REPORT_NODE_PROPERTY}: 1}) RETURN n`, sourceKey);
     if (response.nodes.length !== 1) {
