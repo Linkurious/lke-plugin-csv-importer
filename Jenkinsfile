@@ -5,6 +5,7 @@ nodeJob {
   projectName = "linkurious/lke-plugin-csv-importer"
   runUnitTests = false
   runE2eTests = false
+  runDependencyVersionCheck = false
 
   createGitTag = true
   gitTagPrefix = 'v'
