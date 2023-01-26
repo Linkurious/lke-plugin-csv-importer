@@ -26,7 +26,7 @@
     "build:public": "tsc -b src/public && npm run copy-assets && cd src/public/dist && browserify *.js --debug -o ../../../csv-importer.lke/public/index.js",
     "build:backend": "tsc -b src/backend && npm run installProduction",
     "build": "npm run build:project  && npm pack  ./csv-importer.lke && npm run gunzip ",
-    "gunzip": "gunzip -qf -c linkurious-lke-plugin-csv-importer-$(cat .version).tgz > lke-plugin-csv-importer.lke",
+    "gunzip": "mkdir -p tmp/github_release && gunzip -qf -c linkurious-lke-plugin-csv-importer-$(cat .version).tgz > lke-plugin-csv-importer.lke && ln -sf $(pwd)/lke-plugin-csv-importer.lke $(pwd)/tmp/github_release/lke-plugin-csv-importer-v$(cat .version).lke",
     "plugin:tar": "scripts/postpack.js",
     "bump:patch": "bump2version patch && npm version --no-git-tag-version patch",
     "bump:minor": "bump2version minor && npm version --no-git-tag-version minor",
