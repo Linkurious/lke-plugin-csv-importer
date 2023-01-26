@@ -1,6 +1,9 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
-  ]
+    "github>Linkurious/renovate-config",
+    "github>Linkurious/renovate-config:meta",
+    "regexManagers:dockerfileVersions"
+  ],
+  "baseBranches": ["develop"],
+  "prConcurrentLimit": 10
 }
