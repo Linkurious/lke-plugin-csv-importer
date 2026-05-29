@@ -8,7 +8,7 @@ import {
 } from "./cards";
 import * as utils from "./utils";
 import {CSVFileStructureExample} from "./cards/fileStructureExample";
-import {EntityType} from "@linkurious/rest-client";
+import {EntityType} from "./models";
 
 function main() {
 

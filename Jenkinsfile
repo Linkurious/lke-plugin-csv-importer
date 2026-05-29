@@ -3,6 +3,7 @@
 nodeJob {
   // General
   projectName = "linkurious/lke-plugin-csv-importer"
+  podTemplateNames = ['jnlp-agent-node']
   runUnitTests = false
   runE2eTests = false
   runDependencyVersionCheck = false

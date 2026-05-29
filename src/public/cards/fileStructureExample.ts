@@ -1,4 +1,4 @@
-import {EntityType} from "@linkurious/rest-client";
+import {EntityType} from "../models";
 
 /**
  * All logic related to csv file structure example
