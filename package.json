@@ -47,7 +47,7 @@
     "@types/body-parser": "1.19.0",
     "@types/express": "4.17.9",
     "@types/node": "14.18.63",
-    "@types/papaparse": "5.2.6",
+    "@types/papaparse": "5.5.2",
     "@types/superagent": "4.1.10",
     "browserify": "17.0.0",
     "express": "4.17.1",
@@ -58,7 +58,7 @@
   "dependencies": {
     "@linkurious/rest-client": "4.3.5",
     "body-parser": "1.19.0",
-    "papaparse": "5.3.1"
+    "papaparse": "5.7.0"
   },
   "bundledDependencies": [
     "body-parser",
