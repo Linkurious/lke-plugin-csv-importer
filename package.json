@@ -56,7 +56,7 @@
     "typescript": "4.1.3"
   },
   "dependencies": {
-    "@linkurious/rest-client": "4.3.5",
+    "@linkurious/rest-client": "4.3.12",
     "body-parser": "1.19.0",
     "papaparse": "5.3.1"
   },
